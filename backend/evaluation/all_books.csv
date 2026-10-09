@@ -1,0 +1,179 @@
+id,title,author,courses
+1,"A Common-Sense Guide to Data Structures and Algorithms in Python, Volume 1: Level Up Your Core Programming Skills",Jay Wengrow,CC-DASTRUC21
+2,Advanced database systems,Edited by Ahmed Wagas,CS-IMDBSYS31
+3,Advanced Penetration Testing with Kali Linux: Unlocking industry-oriented VAPT tactics,Ummed Meel,CS-INFOSEC32
+4,Agile Model-Based Systems Engineering Cookbook: Improve System Development by Applying Proven Recipes for Effective Agile Systems Engineering,Bruce Powel Douglass and Christian von Holst,CS-DAALGO22
+5,Algorithms and data structures : an interactive learning experience,,CC-DASTRUC21
+6,Algorithms Design and Analysis,Sebastian Gibson,CS-DAALGO22
+7,"Analysis, Geometry, Nonlinear Optimization and Applications",Edited by Panos M. Pardalos,CS-DAALGO22
+8,Application development with PyCharm : building real-world applications in Python with the convenience of PyCharm,Muhammad Asif,CC-APPSDEV22
+9,Applied algebraic and differential calculus,Edited by Olga Moreira,CS-DIFFCAL21
+10,Applied computational thinking with Python : algorithm design for complex real-world problems,Jesús Sofía D and Martinez Dayrene,CC-PROFIS10
+11,Aspects of computation and automata theory with applications,Edited by Noam Greenberg [and six others],CS-AUTOLAN32
+12,"Automata : theory, trends, and applications",Alexander Meduna and Tomas Kozar,CS-AUTOLAN32
+13,Basic Calculus,Ma. Felisa A. Molina (and two others),CS-INTCALC22
+14,Basic Computer Coding: HTML,,CC-COMPROG11
+15,Basic Computer Coding: JavaScript,,CC-COMPROG11
+16,Basic Computer Coding: Python,Lavinia Iancu,CC-COMPROG11
+17,Basic Computer Coding: Ruby,,CC-COMPROG11
+18,Basic Computer Coding: SQL,,CC-COMPROG11
+19,Big data analytics: a guide to data science practitioners making the transition to big data,Ulrich Matter,CC-DATACOM22
+20,"Building End-to-End Apps with C# 11 and .NET 7: The complete guide to building web, desktop, and mobile apps",Arun Gupta,CC-APPSDEV22
+21,"Build your own programming language: a programmer’s guide to designing compilers, interpreters, and DSLs for solving modern computing problems",Clinton L. Jeffery,CS-PROGLAN31
+22,Business communication,Rexcel Lagare,CC-TWRITE21
+23,Calculus: early transcendentals (metric version),"James Stewart, Daniel Clegg and Saleem Watson",CS-INTCALC22
+24,Code: The Hidden Language of Computer Hardware and Software,Charles Petzold,CC-COMPROG12
+25,Coding As a Playground: programming and computational thinking in the early childhood classroom,Marina Umaschi Bers,CC-COMPROG11
+26,Comprehensive Data structures and Algorithms in Java,Suresh Kumar Srivastava and Deepali Srivastava,CC-DASTRUC21
+27,"Computer architecture with Python and ARM: learn how computers work, program your own, and explore assembly language on Raspberry Pi",Alan Clements,CS-COMORG32
+28,Computer graphics,Zubair Hamza,CS-GRAPHICS32
+29,Computer graphics with multimedia: basic and fundamental concepts,"Kumhar Dharamdas, and Kumar Avanis",CS-GRAPHICS32
+30,Computer Oganization,,CS-COMORG32
+31,Computer Programming Languages,Gordon Hurley,CS-PROGLAN31
+32,"Computer science, algorithms and complexity",Edited by Adele Kuzmiakova,CC-RESCOM31
+33,Computer Systems & Architecture,,CS-SOFTENG31; CS-SOFTENG31
+34,"Computer Systems: Digital Design, Fundamentals of Computer Architecture and ARM Assembly Language",Ata Elahi,CC-DIGILOG22
+35,Concepts of programming languages,Gracie McKenzie,CS-PROGLAN31
+36,Cybersecurity and Risk Management,Lydia Bell,CS-INFOSEC32
+37,Data analysis with SAS: explore your data and get actionable insights with the power of SAS,Nishant Sidana,CS-IMDBSYS31
+38,Data and Computer Communications,Nastaran Nazar Zadeh,CC-DATACOM22
+39,Data Communication and Computer Networks: A Business User's Approach,Jill West,CC-DATACOM22
+40,"Data communication and networking : understanding network architecture, design, and management",Singh Brahampal,CC-DATACOM22
+41,Data Science Concepts and Techniques with Applications,Usman Qamar & Muhammad Raza,CS-PROGLAN31
+42,Data structure and algorithm,Raza Khan Nikhat [and three others],CC-DASTRUC21
+43,Data Structures & Algorithms in Python (Developer's Library),"John Canning, Alan Broder, and Robert Lafore",CC-DASTRUC21
+44,Data Structures and Algorithms,Shubham Gupta,CC-DASTRUC21
+45,Data structures and algorithms with go,Stojanović Dušan,CC-DASTRUC21
+46,Data structures with Python: get familiar with the common Data Structures and Algorithms in Python,Harsh Bhasin,CC-DASTRUC21
+47,"Data warehouse and data mining: concepts, techniques and real life applications",Jugnesh Kumar,CS-IMDBSYS31
+48,"Deciphering object-oriented programming with C++ : a practical, in-depth guide to implementing object-oriented design principles to create robust code",Dorothy R. Kirk,CS-OOPROG21
+49,Decoding JavaScript design patterns : build scalable applications with object-oriented programming and advanced pattern techniques,Rushabh Mulraj Shah,CS-OOPROG21
+50,Digital logic design,Lowan Murray,CC-DIGILOG22
+51,Discover Computers & Coding,David Smee,CC-COMPROG11
+52,Discrete mathematics,,CC-DISCRET12; CC-DISCRET21
+53,Discrete Mathematics: An Open Introduction,Oscar Levin,CC-DISCRET12; CC-DISCRET21
+54,Discrete Mathematics for Computer Science,Pomde N.P.,CC-DISCRET12; CC-DISCRET21
+55,Doing Statistical Analysis: A Student’s Guide to Quantitative Research,Christer Thrane,CC-QUAMETH22
+56,Effective career development : advice for establishing an enjoyable career,Sarah Cook,CC-PRACT40
+57,"Elements of digital gemoetry, mathematical morphology, and discrete optimization",Christer Oscar Kiselman,CC-DISCRET12; CC-DISCRET21
+58,Emerging issues and trends in innovation and technology management,Edited by Alexander Brem,CC-APPSDEV22
+59,Emerging Metaverse XR and Video Multimedia Technologies: Modern Streaming and Multimedia Systems and Applications,Jong-Moon Chung,CC-APPSDEV22
+60,Emerging Technologies and Dynamic Decision Making,Hassan Qudrat-Ullah,CC-APPSDEV22
+61,Essential Mathematics for Quantum Computing: A Beginner's Guide to Just the Math You Need Without Needless Complexities,Leonard S. Woody III,CC-DISCRET12; CC-DISCRET21
+62,Essentials of Software Engineering,"Frank Tsui, Orlando Karam, Barbara Bernal",CS-SOFTENG31; CS-SOFTENG31
+63,Essentials of user interface design,Alvin Albuero De Luna,CS-GRAPHICS32
+64,"Ethical hacking: techniques, tools, and counter measure",Michael G. Solomon,CS-INFOSEC32
+65,Ethics and Law in Computing: Exploring Legal Issues and Ethical Concerns in 21st-Century Technology,Fred Geldon,CC-PROFIS10
+66,Exploration of computer graphics,Edited by Adele Kuzmiakova,CS-GRAPHICS32
+67,Force estimation and control in human-robot interaction,Adriano Scibilia,CC-HC131
+68,"Foundations of computing : essential for computing studies, profession and entrance examinations","Sinha Pradeep K., Sinha Priti",CC-INTCOM11
+69,Fundamentals of database systems,Kaitlyn Salter,CS-IMDBSYS31
+70,Fundamentals of Digital Communication Systems,Tolga M. Duman,CC-DATACOM22
+71,Fundamentals of Digital Logic with VHDL Design,Stephen Brown and Zvonko Vranesic,CC-DIGILOG22
+72,Game Development with Unreal Engine 5: Learn the Basics of Game Development in Unreal Engine 5,Mitchell Lynn and Cliff Sharif,CC-DIGILOG22
+73,G.Calculus: formulations and solutions with Python,G.R. Liu,CS-INTCALC22; CS-DIFFCAL21
+74,Guide to operating systems,Greg Tomsho,CS-OPSYS41
+75,"Hands-on software engineering with Python: move beyond basic programming to design, maintain, and deploy extensible Python systems",Brian Allbee,CS-SOFTENG31; CS-SOFTENG31
+76,High performance computer architecture,Edited by Vishnu Prasad,CS-COMORG32
+77,How to Design and Evaluate Research in Education,"Helen H. Hyun, Jack R. Fraenkel, and Norman Wallen",CS-THESIS41; CS-THESIS42
+78,"How to Structure a Thesis, Report or Paper: A Guide for Students",Robert P. Ormrod,CS-THESIS41; CS-THESIS42
+79,How to write a research paper : a handbook for international students,"Barjesteh Hamed, Azizmohammadi Fereshteh, and Heidarzadi Mohamad",CC-TWRITE21; CS-THESIS41; CS-THESIS42
+80,Human-Centered AI,Ben Shneiderman,CC-HC131
+81,Human-Computer Interaction: An Empirical Research Perspective,I. Scott Mackenzie,CC-HC131
+82,"Human interaction, emerging technologies and future systems V : proceedings of the 5th international virtual conference on human interaction and emerging technologies, IHIET 2021, august 27-29, 2021 and the 6th IHIET: future systems (IHIET-FS 2021), october 28-30, 2021, France set 1 and 2",Tareq Ahram (Editor) [and 3 others],CC-APPSDEV22
+83,Information Assurance and Risk Management Strategies: Manage Your Information Systems and Tools in the Cloud,Bradley Fowler,CS-INFOSEC32
+84,Information management: strategies for gaining a competitive advantage with data,Dr. Shivesh,CS-IMDBSYS31
+85,Information Systems,Fabio Guilherme da Silva,CS-IMDBSYS31
+86,Information Technology Project Management,Robert Martirosyan,CS-IMDBSYS31
+87,Information Technology Service Management,Jeff Struik,CS-IMDBSYS31
+88,Interaction Design: Beyond Human-Computer Interaction,Yvonne Rogers,CC-HC131
+89,Introduction to Application Development and Emerging Technologies,Jake R. Pomperada,CC-APPSDEV22
+90,"Introduction to Automata Theory, Languages, and Computation",Mauricio Alberto Ortega Ruiz,CS-AUTOLAN32
+91,Introduction to confidential computing : a comprehensive guide to understanding and exploring confidential computing,"Praveenraj R, Desai Krishna",CC-INTCOM11
+92,Introduction to Digital Communications (Signals and Communication Technology),Joachim Speidel,CC-DATACOM22
+93,"Introduction to discrete mathematics : for computer science, information technology, and information systems",Winston S. Sirug,CC-DISCRET12; CC-DISCRET21
+94,Introduction to human-computer interaction,Teodoro F. Revano Jr.,CC-HC131
+95,Introduction to virtual reality,Alvin Albuero De Luna,CS-GRAPHICS32
+96,Introductory guide to operating systems,Jocelyn O. Padallan,CS-OPSYS41
+97,IoT and AI Technologies for Sustainable Living: A Practical Handbook,"Edited by Abid Hussain (Editor), Sheng-Lung Peng (Editor), Garima Tyagi (Editor)",CC-RESCOM31
+98,ISE Data Communications and Networking with TCP/IP Protocol Suite,Behrouz A. Forouzan,CC-DATACOM22
+99,Java programming exercises: volume two : java standard library,Christian Ullenboom,CC-DASTRUC21
+100,Key dynamics in computer programming,Adele Kuzmiakova,CC-COMPROG12
+101,Key principles in computation,Satya Prakash Upadhyay,CC-INTCOM11
+102,Learn C programming from Scratch : A step-by-step methodology with problem solving approach,Mohammad Saleem Mir,CC-COMPROG12
+103,Learning Java: An Introduction to Real-World Programming with Java,"Marc Loy, Patrick Niemeyer, and Daniel Leuck",CC-COMPROG11
+104,Logical foundations of computer science,Peter A. Fejer and Dan A. Simovici,CC-DIGILOG22
+105,"Managing and Visualizing Your BIM Data : Understand the Fundamentals of Computer Science for Data Visualization Using Autodesk Dynamo, Revit, and Microsoft Power BI",Ernesto Pellegrino [and four others],CS-GRAPHICS32
+106,Managing Risk in Information Systems (Information Systems Security & Assurance),Darril Gibson and Andy Igonor,CS-INFOSEC32
+107,"Mastering PostgreSQL 15: Advanced Techniques to Build and Manage Scalable, Reliable, and Fault-Tolerant Database Applications",Hans-Jürgen Schönig,CS-IMDBSYS31
+108,Mastering UX design with effective prototyping: turn your ideas into reality with UX prototyping,Apurvo Ghosh,CC-DIGILOG22
+109,"Mathematical analysis, differential equations and applications",Edited by Themistocles M. Rassias,CS-DIFFCAL21
+110,"Mathematics of machine learning : master linear algebra, calculus, and probability for machine learning",Tivadar Danka,CS-INTCALC22
+111,Methods for the Analysis of Asymmetric Proximity Data (Behaviormetrics: Quantitative Approaches to Human Behavior),Bove Giuseppe,CC-QUAMETH22
+112,Microsoft Power Platform Enterprise Architecture: Design Tailor-Made Solutions for Architects and Decision Makers to Meet Complex Business Requirements,Robert Rybaric,CS-DAALGO22
+113,"Modern computer architecture and organization : learn x86, ARM, and RISC-V architectures and the design of smartphones, PCs, and cloud servers",Jim Ledin,CS-COMORG32
+114,Modern Operating System,Andrew S. Tanenbaum and Herbert Bos,CS-OPSYS41
+115,Modern Software Engineering: Doing What Works to Build Better Software Faster,David Farley,CS-SOFTENG31; CS-SOFTENG31
+116,Modern software engineering guidebook: practical solutions to efficient and economical software management,Shakti Kundu,CS-SOFTENG31; CS-SOFTENG31
+117,Modern Systems Analysis and Design,"Joseph Valacich, Joey George, and Jeffrey Hoffer",CS-DAALGO22
+118,Numerical Methods and Analysis with Mathematical Modelling,William P. Fox and Richard D. West,CS-DIFFCAL21
+119,Object Oriented Programming,Motopeda Oluyide,CS-OOPROG21
+120,Operating System,,CS-OPSYS41
+121,Operating Systems,Nastaran Nazar Zadeh,CS-OPSYS41
+122,Operating Systems Essentials,Reid Barnes,CS-OPSYS41
+123,Outcomes-Based Practical Guide To Thesis And Capstone Project Writing In Computing,Charlemagne Garcia Laviña,CS-THESIS41; CS-THESIS42
+124,"Past, Present and Future of Computing Education Research: A Global Perspective","Mikko Apiola (Editor), Mohammed Saqr (Editor), and Sonsoles Lopez-Pernas (Editor)",CC-RESCOM31
+125,Platform engineering and security: security and compliance integration in software development lifecycle using platform engineering,Kuldeep Singh Tomar,CS-SOFTENG31; CS-SOFTENG31
+126,PostgreSQL 14 Administration Cookbook: Over 175 Proven Recipes for Database Administrators to Manage Enterprise Databases Effectively,Simon Riggs and Gianni Ciolli,CS-IMDBSYS31
+127,Practical Arduino Robotics: A Hands-On Guide to Bringing Your Robotics Ideas to Life Using Arduino,Lukas Kaul,CC-HC131
+128,Practical Design Patterns for Java Developers: Hone Your Software Design Skills by Implementing Popular Design Patterns in Java,Miroslav Wengner and Bruno Souza,CS-DAALGO22
+129,Practical Discrete Mathematics: Discover math principles that fuel algorithms for computer science and machine learning with Python,"Ryan T. White, and Archana Tikayat Ray",CC-DISCRET12; CC-DISCRET21
+130,Practical Python Programming For Data Scientists,A. Suresh [and 2 others],CC-COMPROG12
+131,Principles of Business Information Systems,Ralph Stair,CC-INTCOM11
+132,Principles of information security,Michael E. Whitman and Herbert J. Mattord,CS-INFOSEC32
+133,Principles of software architecture modernization,Diego Pacheco,CS-SOFTENG31; CS-SOFTENG31
+134,"Probability, information, and physics : problems with quantum mechanics in the context of a novel probability theory",Paolo Rocchi,CC-QUAMETH22
+135,Professional communication and technical writing skills: a short Guide,Punam Pandey and Vipin Kumar Pandey,CC-TWRITE21
+136,Professionals and careers in computer science and technology,Adele Kuzmiakova,CC-PRACT40
+137,Programming Languages: Concepts and Implementation,Saverio Perugini,CS-PROGLAN31
+138,Programming Language Theory,Alvin Albuero De Luna,CS-PROGLAN31
+139,Programming language theory and formal methods,Zoran Gacovski,CS-AUTOLAN32
+140,Programming logic and design,Joyce Farrell,CC-DIGILOG22
+141,Programming techniques using python : have fun and play with basic & advanced core python,Saurabh Chandrakar and Nilesh Bhaskarrao Bahadure,CC-COMPROG12
+142,Python : an introduction to programming,James R. Parker,CC-COMPROG12
+143,"Python for Cybersecurity Cookbook 80+ Practical Recipes for Detecting, Defending, and Responding to Cyber Threats",Nishant Krishna,CS-INFOSEC32
+144,Python for programmers,Oswald Campesato,CC-COMPROG12
+145,Python made easy: a first course in computer programming using Python,Kevin Wilson,CC-COMPROG12
+146,Python Object-Oriented Programming: Build robust and maintainable object-oriented Python applications and libraries,"Steven F. Lott, and Dusty Phillips",CS-OOPROG21
+147,Python programming for students : explore python in multiple dimensions with project-oriented approach,Nidhi Grover Raheja,CC-COMPROG12
+148,Quantitative Methodologies using Multi-Methods: Models for Social Science and Information Technology Research,"Sergey Samoilenko, Kweku-Muata Osei-Bryson",CC-QUAMETH22
+149,Quantum Chemistry and Computing for the Curious: Illustrated with Python and Qiskit® Code,"Keeper Layne Sharkey, Alex Khan, and Alain Chancé",CC-RESCOM31
+150,Quantum computing: The transformative technology of the qubit revolution,Brian Clegg,CC-INTCOM11
+151,Readings from Programming with Python,"Kyla McMullen, Elizabeth Matthews, and June Jamrich Parsons",CC-COMPROG12
+152,Real-world implementation of C# design patterns : overcome daily programming challenges using elements of reusable object-oriented software,Bruce M. Van Horn II,CS-OOPROG21
+153,Research and Statistics with Thesis and Dissertation Writing,Dr. Mariano M. Ariola,CS-THESIS41; CS-THESIS42
+154,Research and Thesis Writing: With Tips in Oral Presentation,Juliet Cui-Lagrimas and Kim Joshua Cui Lagrimas,CS-THESIS41; CS-THESIS42
+155,"Scientific Computing with Python: High-Performance Scientific Computing with NumPy, SciPy, and Pandas","Claus Führer, Jan Erik Solem, and Olivier Verdier",CC-RESCOM31
+156,Security in Computing,"Charles Pfleeger, Shari Pfleeger, and Lizzie Coles-Kemp",CC-PROFIS10
+157,Security Policies and Implementation Issues (Information Systems Security & Assurance),Robert Johnson and Chuck Easttom,CS-INFOSEC32
+158,Security strategies in windows platforms and applications,Robert Shimonski and Michael G. Solomon,CS-INFOSEC32
+159,Software Design,,CS-DAALGO22
+160,Software Engineering for Internet Applications,Henry Knox,CS-SOFTENG31; CS-SOFTENG31
+161,Solid Geometry with MATLAB Programming,Nita H. Shah,CC-COMPROG12
+162,Stieltjes Differential Calculus with Applications,Svetlin G. Georgiev and Sanket Tikare,CS-DIFFCAL21
+163,"Technical writing for software developers: enhance communication, improve collaboration, and leverage AI tools for software development",Chinchilla Chris,CC-TWRITE21
+164,The application of probability theory,Edited by Olga Moreira,CC-QUAMETH22
+165,"The business analyst’s career master plan : tools, techniques, and strategies for a thriving career in business analysis",Jamie Champagne,CC-PRACT40
+166,"The Cambridge Handbook of Information Technology, Life Sciences and Human Rights",Marcello Ienca (Editor)[and 4 other editors],CC-PROFIS10
+167,The creation and management of database systems,Edited by Adele Kuzmiakova,CS-IMDBSYS31
+168,The Evolving Landscape of Ethical Digital Technology,Simon Rogerson,CC-PROFIS10
+169,"The Internship, Practicum, and Field Placement Handbook: A Guide for the Helping Professions","Brian N. Baird, and Debra Mollen",CC-PRACT40
+170,The MySQL Workshop: A Practical Guide to Working with Data and Managing Databases with MySQL,Thomas Pettit and Scott Cosentino,CS-IMDBSYS31
+171,Theory of computation simplified : simulate real-world computing machines and problems with strong principles of computation,Dr. Varsha H. Patil [and three others],CS-AUTOLAN32
+172,"Theory, practice and techniques in computer science",Florian Fekete,CS-COMORG32; CC-RESCOM31
+173,The Tableau Workshop : A Practical Guide to the Art of Data Visualization with Tableau,Sumit Gupta [and four others],CS-GRAPHICS32
+174,Thomas' calculus : early transcendental,George B. Thomas [and five others],CS-INTCALC22
+175,Transforming financial institutions: value operation through technology innovation and operational change,Joerg Routschi,CS-IMDBSYS31
+176,Web engineering,Iqra Ameer,CS-SOFTENG31; CS-SOFTENG31
+177,Wireless communication: principles and practice,Theodore S. Rappaport,CC-DATACOM22
+178,Your Supervised Practicum and Internship,"Lori A. Russell-Chapin, Nancy E. Sherman, Theodore J. Chapin, and Allen E. Ivey",CC-PRACT40

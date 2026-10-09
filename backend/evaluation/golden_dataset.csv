@@ -1,0 +1,26 @@
+id,query,relevant_ids,notes
+1,I want to learn HTML,14,
+2,beginner books for Python programming,16;142;145;147;151,"Borderline (left out): 141 says basic AND advanced; 144 is aimed at people who already program"
+3,books for data structures and algorithms,1;5;6;26;42;43;44;45;46,
+4,"I'm taking Information Security, what should I read?",3;36;64;83;106;132;143;156;157;158,"Course-based question: all INFOSEC32 books + 156 Security in Computing"
+5,books about ethical hacking or penetration testing,3;64,
+6,operating systems reference,74;96;114;120;121;122,
+7,books about databases and SQL,2;18;69;107;126;167;170,"Borderline (left out): 47 data warehouse/data mining"
+8,do you have PostgreSQL books?,107;126,
+9,human computer interaction books,80;81;88;94,"Borderline (left out): 63 user interface design; 82 conference proceedings"
+10,discrete mathematics for computer science,52;53;54;93;129,
+11,books for Software Engineering,62;75;115;116;125;133;160;176,"Left out 33 Computer Systems & Architecture even though it is listed under SOFTENG31"
+12,how to write a thesis,78;79;123;153;154,"Borderline (left out): 77 research design in education"
+13,calculus books,9;13;23;73;162;174,"Borderline (left out): 109 differential equations; 110 math for machine learning"
+14,computer networks and data communication,38;39;40;70;92;98;177,
+15,object-oriented programming,48;49;119;146;152,
+16,computer graphics,28;29;66,
+17,automata theory,11;12;90;171,"Borderline (left out): 139 programming language theory and formal methods"
+18,technical writing,135;163,
+19,do you have a book by Tanenbaum?,114,
+20,statistics and probability,55;153;164,"Left out 134 (quantum physics probability)"
+21,books for CC-COMPROG12,24;100;102;130;141;142;144;145;147;151;161,"Course-code question: every book listed under CC-COMPROG12"
+22,Java programming books,26;99;103;128,
+23,I want to learn C programming,102,
+24,books about cooking,,No answer expected: library has no cooking books
+25,romance novels,,No answer expected: library has no novels

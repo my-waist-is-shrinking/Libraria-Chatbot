@@ -1,0 +1,17 @@
+# Runs PostgreSQL + pgvector in Docker
+services:
+  db:
+    image: pgvector/pgvector:pg17        # PostgreSQL 17 with pgvector included
+    container_name: libraria-db
+    environment:
+      POSTGRES_USER: libraria            # database username
+      POSTGRES_PASSWORD: libraria123     # database password (dev only)
+      POSTGRES_DB: libraria              # database name
+    ports:
+      - "5432:5432"                      # your laptop's port : Docker's port
+    volumes:
+      - libraria-data:/var/lib/postgresql/data              # keeps your data when Docker stops
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql  # creates tables on first start
+
+volumes:
+  libraria-data:
