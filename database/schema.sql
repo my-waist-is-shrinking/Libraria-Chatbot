@@ -34,6 +34,8 @@ CREATE TABLE books (
                  CHECK (format IN ('Print', 'E-Book')),
     description  TEXT,                          -- empty for now, helps AI search later
     is_available BOOLEAN     NOT NULL DEFAULT TRUE,
+    copies       INT         NOT NULL DEFAULT 1
+                 CHECK (copies >= 0),           -- how many copies the library owns
     embedding    vector(768),                   -- AI "meaning" numbers, filled in later
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()

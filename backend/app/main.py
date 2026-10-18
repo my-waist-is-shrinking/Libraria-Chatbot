@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import books, chat
+from app.api.routes import admin, auth, books, chat, library
 from app.core.config import settings
 
 app = FastAPI(title="Libraria API")
@@ -15,8 +15,11 @@ app.add_middleware(
 )
 
 # Register routes
+app.include_router(admin.router)
+app.include_router(auth.router)
 app.include_router(books.router)
 app.include_router(chat.router)
+app.include_router(library.router)   # librarian page: books, courses, AI index
 
 
 @app.get("/api/health")

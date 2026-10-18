@@ -4,6 +4,9 @@ import { PaperAirplaneIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from './LoginModal';
+import AccountModal from './AccountModal';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { ArrowRightStartOnRectangleIcon, BookOpenIcon, ChevronUpDownIcon, Cog6ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
 
 const Chat = () => {
   // Logged-in user (from AuthContext)
@@ -26,9 +29,13 @@ const Chat = () => {
 
   // State: data that changes and re-draws the screen
   const [input, setInput] = useState('');             // text in the input box
-  const [isLoading, setIsLoading] = useState(false);  // true while waiting for AI
+  const [loadingChatIds, setLoadingChatIds] = useState([]); // chats still waiting for the AI
   const [showDiscardPopup, setShowDiscardPopup] = useState(false); // true = discard popup is visible
   const [showLogin, setShowLogin] = useState(false);  // true = login popup is visible
+  const [accountTab, setAccountTab] = useState(null); // 'profile' / 'settings' = account popup open, null = closed
+
+  // Loading dots only show in the chat that is waiting (not every chat)
+  const isLoading = loadingChatIds.includes(activeChatId);
 
   // Refs: direct links to elements on the page
   const messagesEndRef = useRef(null);  // invisible div at the bottom
@@ -69,7 +76,7 @@ const Chat = () => {
       .map(m => ({ role: m.isAI ? 'assistant' : 'user', content: m.text }));
 
     addMessage(chatId, { text: userMessage, isAI: false }); // add user message
-    setIsLoading(true);             // show loading dots
+    setLoadingChatIds(prev => [...prev, chatId]); // show loading dots (this chat only)
 
     try {
       // Send message to the backend
@@ -94,7 +101,7 @@ const Chat = () => {
       console.error('Error:', error);
       addMessage(chatId, { text: 'Sorry, there was an error processing your request.', isAI: true });
     } finally {
-      setIsLoading(false); // always stop loading
+      setLoadingChatIds(prev => prev.filter(id => id !== chatId)); // always stop loading (this chat only)
     }
   };
 
@@ -170,22 +177,93 @@ const Chat = () => {
 
         {/* Profile (bottom of sidebar) */}
         <div className="border-t border-gray-200 p-3">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <UserCircleIcon className="h-9 w-9 text-gray-400" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-              {/* Role badge */}
-              <span className="text-xs capitalize text-fuchsia-700">{user.role}</span>
-            </div>
-          </div>
+          {user.role === 'guest' ? (
+            <>
+              <div className="flex items-center gap-3 px-2 py-2">
+                <UserCircleIcon className="h-9 w-9 text-gray-400" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                  {/* Role badge */}
+                  <span className="text-xs capitalize text-fuchsia-700">{user.role}</span>
+                </div>
+              </div>
 
-          {/* Guests: open login popup. Users: log out */}
-          <button
-            onClick={user.role === 'guest' ? () => setShowLogin(true) : handleLogout}
-            className="w-full mt-1 px-3 py-2 rounded-lg text-sm font-medium text-white bg-amber-600 hover:bg-amber-700"
-          >
-            {user.role === 'guest' ? 'Log in' : 'Log out'}
-          </button>
+              {/* Guests: open login popup */}
+              <button
+                onClick={() => setShowLogin(true)}
+                className="w-full mt-1 px-3 py-2 rounded-lg text-sm font-medium text-white bg-amber-600 hover:bg-amber-700"
+              >
+                Log in
+              </button>
+            </>
+          ) : (
+            // Users: click your name to open a menu (Profile, Settings, Manage users for admins, Manage books for staff, Log out)
+            <Menu>
+              <MenuButton className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-gray-100 focus:outline-none">
+                <UserCircleIcon className="h-9 w-9 text-gray-400" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                  {/* Role badge */}
+                  <span className="text-xs capitalize text-fuchsia-700">{user.role}</span>
+                </div>
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
+              </MenuButton>
+
+              {/* The menu opens above your name */}
+              <MenuItems
+                anchor="top start"
+                className="z-50 w-56 rounded-xl border border-gray-200 bg-white p-1 shadow-lg [--anchor-gap:6px] focus:outline-none"
+              >
+                <MenuItem>
+                  <button
+                    onClick={() => setAccountTab('profile')}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                  >
+                    <UserIcon className="h-4 w-4 text-gray-400" /> Profile
+                  </button>
+                </MenuItem>
+                <MenuItem>
+                  <button
+                    onClick={() => setAccountTab('settings')}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 text-gray-400" /> Settings
+                  </button>
+                </MenuItem>
+                {/* Admins only: go to the Manage users page */}
+                {user.role === 'admin' && (
+                  <MenuItem>
+                    <button
+                      onClick={() => navigate('/admin')}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                    >
+                      <UserGroupIcon className="h-4 w-4 text-gray-400" /> Manage users
+                    </button>
+                  </MenuItem>
+                )}
+                {/* Librarians + admins: go to the Library page (books, courses, AI index) */}
+                {(user.role === 'librarian' || user.role === 'admin') && (
+                  <MenuItem>
+                    <button
+                      onClick={() => navigate('/library')}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                    >
+                      <BookOpenIcon className="h-4 w-4 text-gray-400" /> Manage books
+                    </button>
+                  </MenuItem>
+                )}
+                <div className="my-1 h-px bg-gray-200" />
+                <MenuItem>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 data-[focus]:bg-red-50"
+                  >
+                    <ArrowRightStartOnRectangleIcon className="h-4 w-4" /> Log out
+                  </button>
+                </MenuItem>
+              </MenuItems>
+            </Menu>
+          )}
         </div>
       </aside>
 
@@ -303,6 +381,9 @@ const Chat = () => {
 
             {/* ===== LOGIN POPUP ===== */}
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+
+      {/* ===== ACCOUNT POPUP (Profile + Settings) ===== */}
+      {accountTab && <AccountModal tab={accountTab} onClose={() => setAccountTab(null)} />}
     </div>
   );
 };

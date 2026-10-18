@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../context/AuthContext';
 
@@ -136,6 +136,14 @@ const LoginPage = () => {
                 Guests can chat, but conversations aren't saved.
               </p>
             </div>
+
+            {/* No account yet? Go to the sign up page */}
+            <p className="text-center text-xs text-gray-500">
+              No account yet?{' '}
+              <Link to="/signup" className="font-medium text-fuchsia-700 hover:underline">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
 

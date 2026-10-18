@@ -5,3 +5,5 @@ psycopg[binary]
 pgvector
 pydantic-settings
 ollama
+bcrypt
+pyjwt
