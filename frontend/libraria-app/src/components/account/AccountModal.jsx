@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon, UserCircleIcon } from '@heroicons/react/24/solid';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Shared styles for inputs and labels (same look as the login page)
 const INPUT = 'h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:bg-gray-100 disabled:text-gray-500';

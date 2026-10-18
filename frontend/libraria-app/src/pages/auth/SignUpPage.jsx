@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/solid';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Bullet points on the right panel
 const HIGHLIGHTS = [
@@ -10,34 +10,34 @@ const HIGHLIGHTS = [
   'Get recommendations for your course',
 ];
 
-const LoginPage = () => {
-  const { login, loginAsGuest } = useAuth();
+const SignUpPage = () => {
+  const { register } = useAuth();
   const navigate = useNavigate(); // lets us change pages in code
 
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');   // "type password again" box
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Log in with email + password
+  // Make a student account, then go straight to the chat
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (password !== confirm) {
+      setError("Passwords don't match.");
+      return;
+    }
     setIsLoading(true);
     try {
-      await login(email, password);
+      await register(fullName, email, password);
       navigate('/chat');
     } catch (err) {
       setError(err.message); // show the error box
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Skip login and chat as a guest
-  const handleGuest = () => {
-    loginAsGuest();
-    navigate('/chat');
   };
 
   return (
@@ -57,13 +57,29 @@ const LoginPage = () => {
 
             {/* Heading */}
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Welcome back</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-500">New here?</p>
               <h1 className="text-xl font-bold text-gray-900">
-                Sign in to <em className="font-normal text-fuchsia-700">Libraria.</em>
+                Create your <em className="font-normal text-fuchsia-700">Libraria</em> account
               </h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Full name */}
+              <div className="space-y-1">
+                <label htmlFor="fullName" className="text-[10px] font-medium uppercase tracking-wider text-gray-700">
+                  Full name
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  placeholder="Juan Dela Cruz"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+              </div>
+
               {/* Email */}
               <div className="space-y-1">
                 <label htmlFor="email" className="text-[10px] font-medium uppercase tracking-wider text-gray-700">
@@ -88,9 +104,25 @@ const LoginPage = () => {
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="At least 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  className="h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+              </div>
+
+              {/* Confirm password */}
+              <div className="space-y-1">
+                <label htmlFor="confirm" className="text-[10px] font-medium uppercase tracking-wider text-gray-700">
+                  Confirm password
+                </label>
+                <input
+                  id="confirm"
+                  type="password"
+                  placeholder="Type it again"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
                   disabled={isLoading}
                   className="h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 />
@@ -103,45 +135,25 @@ const LoginPage = () => {
                 </p>
               )}
 
-              {/* Log in button */}
+              {/* Sign up button */}
               <button
                 type="submit"
                 disabled={isLoading}
                 className="flex h-9 w-full items-center justify-center rounded-full bg-amber-600 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
               >
-                {isLoading ? 'Logging in...' : (
+                {isLoading ? 'Creating account...' : (
                   <>
-                    Log in <ArrowRightIcon className="ml-2 h-4 w-4" />
+                    Sign up <ArrowRightIcon className="ml-2 h-4 w-4" />
                   </>
                 )}
               </button>
             </form>
 
-            {/* "or" divider */}
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs uppercase tracking-wider text-gray-400">or</span>
-              <div className="h-px flex-1 bg-gray-200" />
-            </div>
-
-            {/* Guest button */}
-            <div className="space-y-2">
-              <button
-                onClick={handleGuest}
-                className="h-9 w-full rounded-full border-2 border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Continue as Guest
-              </button>
-              <p className="text-center text-xs text-gray-500">
-                Guests can chat, but conversations aren't saved.
-              </p>
-            </div>
-
-            {/* No account yet? Go to the sign up page */}
+            {/* Already have an account? */}
             <p className="text-center text-xs text-gray-500">
-              No account yet?{' '}
-              <Link to="/signup" className="font-medium text-fuchsia-700 hover:underline">
-                Sign up
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-fuchsia-700 hover:underline">
+                Log in
               </Link>
             </p>
           </div>
@@ -186,4 +198,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUpPage;

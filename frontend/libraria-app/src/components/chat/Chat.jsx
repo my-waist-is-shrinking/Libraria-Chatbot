@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import { PaperAirplaneIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import LoginModal from './LoginModal';
-import AccountModal from './AccountModal';
+import { useAuth } from '../../context/AuthContext';
+import LoginModal from '../account/LoginModal';
+import AccountModal from '../account/AccountModal';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { ArrowRightStartOnRectangleIcon, BookOpenIcon, ChevronUpDownIcon, Cog6ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
 

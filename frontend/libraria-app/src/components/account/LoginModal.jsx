@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Login popup shown on top of the chat (the chat stays underneath)
 // Props: onClose = function that hides the popup

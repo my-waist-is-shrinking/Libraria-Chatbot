@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
-import AdminUsersPage from './pages/AdminUsersPage';
-import LibraryPage from './pages/LibraryPage'; // librarian page: books, courses, AI index
-import Chat from './components/Chat'; // change this path if your Chat.jsx is somewhere else
+import LoginPage from './pages/auth/LoginPage';
+import SignUpPage from './pages/auth/SignUpPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import LibraryPage from './pages/librarian/LibraryPage'; // librarian page: books, courses, AI index
+import Chat from './components/chat/Chat'; // change this path if your Chat.jsx is somewhere else
 
 function App() {
   const { user } = useAuth();
