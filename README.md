@@ -24,7 +24,7 @@ matching books, then lets a local AI write a reply using **only** those books.
 | Role | Can do | Where |
 |---|---|---|
 | **Guest** | Chat with the book assistant without an account (nothing is saved) | Login page → **Continue as Guest** |
-| **Student** (`user`) | Sign up, log in, chat, change their name (**Profile**) and password (**Settings**) | Click your name at the bottom of the sidebar |
+| **Student** (`user`) | Sign up, log in, chat, **saved chats** (your past chats stay in the sidebar; reopen or delete them), change their name (**Profile**) and password (**Settings**) | Click your name at the bottom of the sidebar |
 | **Librarian** | Everything a student can + the **Library page**: add / edit / delete books, availability, number of copies, courses, search and filters, stats, **Import CSV**, **Update AI index** | Menu → **Manage books** (`/library`) |
 | **Admin** | Everything a librarian can + **Manage users**: create librarian/admin accounts, change roles, activate/deactivate, reset passwords | Menu → **Manage users** (`/admin`) |
 
@@ -177,8 +177,9 @@ Then open **http://localhost:5173**.
 
 - **Continue as Guest** → chat without an account (not saved).
 - **Sign up** → make a student account.
-- **Log in** → students go to the chat; click your name (bottom-left) for Profile, Settings,
-  and (for staff) **Manage books** / **Manage users**.
+- **Log in** → students go to the chat. Your saved chats show in the left sidebar: click one to
+  reopen it, or click the trash icon to delete it. Click your name (bottom-left) for Profile,
+  Settings, and (for staff) **Manage books** / **Manage users**.
 
 Useful pages:
 - http://localhost:8000/api/health → shows the server is running and which AI model it uses
@@ -236,11 +237,11 @@ Libraria/
 │       ├── main.py                 ← starts the API, registers the routes
 │       ├── core/config.py          ← reads .env
 │       ├── db/                     ← database connection (get_db) + tables (models.py)
-│       ├── schemas/                ← what the API sends/receives (user, book, chat)
-│       ├── repositories/           ← the only code that talks to the database (user, book, course)
-│       ├── services/               ← logic: auth, admin, library, RAG chat, prompts, Ollama
-│       ├── api/deps.py             ← "who is logged in?" + role checks
-│       ├── api/routes/             ← URLs: /api/auth, /api/admin, /api/library, /api/books, /api/chat
+│       ├── schemas/                ← what the API sends/receives (user, book, chat, conversation)
+│       ├── repositories/           ← the only code that talks to the database (user, book, course, conversation)
+│       ├── services/               ← logic: auth, admin, library, RAG chat, saved chats, prompts, Ollama
+│       ├── api/deps.py             ← "who is logged in?" + role checks (guests allowed where needed)
+│       ├── api/routes/             ← URLs: /api/auth, /api/admin, /api/library, /api/books, /api/chat, /api/conversations
 │       └── commands/               ← scripts (create_admin, embed_books, evaluate_retrieval)
 └── frontend/libraria-app/src/      ← React app
     ├── App.jsx                     ← pages + who can open them
@@ -250,7 +251,7 @@ Libraria/
     │   ├── admin/                  ← AdminUsersPage (Manage users)
     │   └── librarian/              ← LibraryPage (Manage books)
     └── components/
-        ├── chat/                   ← Chat, ChatMessage
+        ├── chat/                   ← Chat (with the saved-chats sidebar), ChatMessage, BookSearchPanel
         ├── account/                ← AccountModal (Profile + Settings), LoginModal
         └── librarian/              ← BookForm, CoursesPanel
 ```
@@ -263,7 +264,8 @@ Routes never talk to the database directly.
 | Prefix | What | Who |
 |---|---|---|
 | `/api/auth` | `login`, `register`, `me` (GET / PATCH), `change-password` | anyone / logged in |
-| `/api/chat`, `/api/books` | the chatbot and the public book list | anyone |
+| `/api/chat`, `/api/books` | the chatbot (saves the chat when you're logged in) and the public book list | anyone |
+| `/api/conversations` | my saved chats: list, load one chat's messages, delete | logged in |
 | `/api/admin/users` | list, create, change role, activate/deactivate, reset password | admin |
 | `/api/library` | books (CRUD + `books/import`), courses (CRUD), `ai-index` | librarian + admin |
 
@@ -304,6 +306,8 @@ After a `git pull`, if `requirements.txt` changed run `pip install -r requiremen
 | `DLL load failed ... Application Control policy has blocked this file` | Windows Smart App Control is blocking Python packages. Turn it off in Windows Security → App & browser control. |
 | `running scripts is disabled on this system` | Run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
 | Chat says "Sorry, there was an error..." | Check that the backend (uvicorn) and Ollama are running, and look at the uvicorn window for the red error. |
+| Saved chats don't show in the sidebar after logging in | Make sure the backend is running, then open the browser's Network tab (F12) and look at the `conversations` request. A 401 means log in again. "No chats yet" is normal for an account that hasn't sent a message. |
+| Page turns white after editing `Chat.jsx` | Press F12 → Console and read the first red error. It is usually a missing import (like `TrashIcon`) or a duplicate import line. |
 | "Couldn't reach the AI" on **Update AI index** | Open the Ollama app, then press the button again. |
 | "Your session expired. Please log in again." | Login tokens last 24 hours. Just log in again. |
 | Changed `.env` but nothing changed | Restart uvicorn (`Ctrl+C`, then run it again). `--reload` does not watch `.env`. |

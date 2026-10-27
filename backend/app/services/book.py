@@ -4,9 +4,12 @@ from app.db.models import Book
 from app.repositories import book as book_repo
 
 
-def get_books(db: Session, course_code: str | None = None):
-    """Business logic for listing books."""
-    return book_repo.list_books(db, course_code)
+def get_books(db: Session, course_code: str | None = None, title: str | None = None):
+    """Business logic for listing books (title = the book title typed in the search panel on the chat page)."""
+    if title and title.strip():                              # the student typed a title (not just spaces)
+        clean = " ".join(title.split())                      # "Clean   Code " -> "Clean Code" (extra spaces removed)
+        return book_repo.search_by_title(db, clean)          # search the collection by book title
+    return book_repo.list_books(db, course_code)             # nothing typed: list books like before
 
 
 def book_to_text(book: Book) -> str:

@@ -16,6 +16,17 @@ def list_books(db: Session, course_code: str | None = None, limit: int = 50) -> 
         stmt = stmt.join(Book.courses).where(Course.code == course_code)
     return list(db.scalars(stmt).all())
 
+def search_by_title(db: Session, title: str, limit: int = 30) -> list[Book]:
+    """Find the books in the library collection whose title matches the keyword typed (capital letters ignored)."""    
+    pattern = f"%{title}%"                     # % = anything before/after, so part of a title still works
+    stmt = (
+        select(Book)                           # get books
+        .options(selectinload(Book.courses))   # also load each book's courses
+        .where(Book.title.ilike(pattern))      # ilike = ignore capital letters; ONLY the title is checked
+        .order_by(Book.title)                  # sort A to Z
+        .limit(limit)                          # at most 30 results
+    )
+    return list(db.scalars(stmt).all())        # run it and return the books as a list
 
 def list_all(db: Session) -> list[Book]:
     """Get every book (used by the embedding script and the librarian page)."""

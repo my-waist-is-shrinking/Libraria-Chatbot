@@ -75,6 +75,9 @@ export function AuthProvider({ children }) {
       throw new Error("Can't reach the server. Is the backend running?");
     }
 
+    // 204 = success with no body (e.g. delete), so there's no JSON to read
+    if (response.status === 204) return null;
+
     const data = await response.json();
     // 401 = token expired or bad, so log out and ask to log in again
     if (response.status === 401) {

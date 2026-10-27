@@ -1,26 +1,26 @@
 id,query,precision_at_5,recall_at_5,hit_at_5,found_ids,missed_ids,search_seconds
-1,I want to learn HTML,0.2,1.0,1,14;103;176;15;102,,3.092
-2,beginner books for Python programming,0.6,0.6,1,145;142;1;141;147,16;151,0.123
-3,books for data structures and algorithms,1.0,0.5555555555555556,1,44;45;43;42;26,1;5;6;46,0.121
-4,"I'm taking Information Security, what should I read?",1.0,0.5,1,132;106;157;36;158,3;64;83;143;156,0.152
-5,books about ethical hacking or penetration testing,0.4,1.0,1,64;3;65;143;91,,0.146
-6,operating systems reference,1.0,0.8333333333333334,1,114;74;96;121;122,120,0.116
-7,books about databases and SQL,0.8,0.5714285714285714,1,167;69;2;47;107,18;126;170,0.177
-8,do you have PostgreSQL books?,0.4,1.0,1,126;107;170;45;1,,0.136
-9,human computer interaction books,0.8,1.0,1,94;88;81;80;67,,0.113
-10,discrete mathematics for computer science,0.8,0.8,1,129;54;93;52;57,53,0.117
-11,books for Software Engineering,1.0,0.625,1,116;160;62;115;75,125;133;176,0.12
-12,how to write a thesis,1.0,1.0,1,78;154;79;153;123,,0.112
-13,calculus books,1.0,0.8333333333333334,1,23;73;174;13;162,9,3.966
-14,computer networks and data communication,1.0,0.7142857142857143,1,40;39;38;98;70,92;177,0.24
-15,object-oriented programming,1.0,1.0,1,48;119;146;152;49,,0.22
-16,computer graphics,0.6,1.0,1,29;28;66;17;14,,0.114
-17,automata theory,0.8,1.0,1,11;12;90;171;139,,0.135
-18,technical writing,0.4,1.0,1,163;135;79;22;154,,0.105
-19,do you have a book by Tanenbaum?,0.2,1.0,1,114;136;1;100;23,,0.146
-20,statistics and probability,0.4,0.6666666666666666,1,164;134;55;111;148,153,0.131
-21,books for CC-COMPROG12,0.6,0.2727272727272727,1,102;14;18;144;151,24;100;130;141;142;145;147;161,0.135
-22,Java programming books,0.8,1.0,1,99;103;128;26;49,,0.119
-23,I want to learn C programming,0.2,1.0,1,102;17;15;141;21,,0.114
-24,books about cooking,,,,143;126;129;4;173,,0.116
-25,romance novels,,,,100;66;22;38;160,,0.151
+1,I want to learn HTML,0.2,1.0,1,14;103;176;15;102,,6.028
+2,beginner books for Python programming,0.6,0.6,1,145;142;1;141;147,16;151,0.129
+3,books for data structures and algorithms,1.0,0.5555555555555556,1,44;45;43;42;26,1;5;6;46,0.134
+4,"I'm taking Information Security, what should I read?",1.0,0.5,1,132;106;157;36;158,3;64;83;143;156,0.139
+5,books about ethical hacking or penetration testing,0.4,1.0,1,64;3;65;143;91,,0.12
+6,operating systems reference,1.0,0.8333333333333334,1,114;74;96;121;122,120,0.179
+7,books about databases and SQL,0.8,0.5714285714285714,1,167;69;2;47;107,18;126;170,0.154
+8,do you have PostgreSQL books?,0.4,1.0,1,126;107;170;45;1,,0.134
+9,human computer interaction books,0.8,1.0,1,94;88;81;80;67,,0.112
+10,discrete mathematics for computer science,0.8,0.8,1,129;54;93;52;57,53,0.116
+11,books for Software Engineering,1.0,0.625,1,116;160;62;115;75,125;133;176,0.111
+12,how to write a thesis,1.0,1.0,1,78;154;79;153;123,,0.117
+13,calculus books,1.0,0.8333333333333334,1,23;73;174;13;162,9,0.104
+14,computer networks and data communication,1.0,0.7142857142857143,1,40;39;38;98;70,92;177,0.114
+15,object-oriented programming,1.0,1.0,1,48;119;146;152;49,,0.112
+16,computer graphics,0.6,1.0,1,29;28;66;17;14,,0.092
+17,automata theory,0.8,1.0,1,11;12;90;171;139,,0.109
+18,technical writing,0.4,1.0,1,163;135;79;22;154,,0.095
+19,do you have a book by Tanenbaum?,0.2,1.0,1,114;136;1;100;23,,0.127
+20,statistics and probability,0.4,0.6666666666666666,1,164;134;55;111;148,153,0.112
+21,books for CC-COMPROG12,0.6,0.2727272727272727,1,102;14;18;144;151,24;100;130;141;142;145;147;161,0.12
+22,Java programming books,0.8,1.0,1,99;103;128;26;49,,0.109
+23,I want to learn C programming,0.2,1.0,1,102;17;15;141;21,,0.115
+24,books about cooking,,,,143;126;129;4;173,,0.112
+25,romance novels,,,,100;66;22;38;160,,0.104

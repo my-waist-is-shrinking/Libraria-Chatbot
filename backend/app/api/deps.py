@@ -28,6 +28,16 @@ def get_current_user(
     return user
 
 
+def get_optional_user(
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Like get_current_user, but guests are allowed: no token = None (guest)."""
+    if creds is None:                       # no token sent = guest
+        return None
+    return get_current_user(creds, db)      # token sent = must be valid (expired = "Please log in.")
+
+
 def require_roles(*roles: str):
     """Only let these roles in. Admin is always allowed (admin can do everything)."""
     def checker(user: User = Depends(get_current_user)) -> User:

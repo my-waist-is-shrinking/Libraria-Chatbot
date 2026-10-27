@@ -60,3 +60,34 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()        # database fills in the time
     )
+
+
+class Conversation(Base):
+    """One saved chat of a logged-in user (shown in the sidebar). Guests are NOT saved."""
+    __tablename__ = "conversations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))   # whose chat this is
+    title: Mapped[str | None] = mapped_column(String(255))         # the first message, cut short
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()        # database fills in the time
+    )
+
+    # All messages in this chat, oldest first
+    # (cascade = deleting the chat also deletes its messages)
+    messages: Mapped[list["Message"]] = relationship(
+        order_by="Message.id", cascade="all, delete-orphan"
+    )
+
+
+class Message(Base):
+    """One message inside a saved chat: from the student ("user") or the AI ("assistant")."""
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"))  # which chat it belongs to
+    role: Mapped[str] = mapped_column(String(20))       # "user" or "assistant"
+    content: Mapped[str] = mapped_column(Text)          # the message text
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

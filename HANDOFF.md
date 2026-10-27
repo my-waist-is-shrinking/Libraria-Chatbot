@@ -1,6 +1,6 @@
 # Libraria Handoff Summary
 
-_As of 2026-10-18 · gio_
+_As of 2026-10-27 · gio_
 
 ## Overview
 
@@ -23,8 +23,8 @@ All four roles work end to end: guest, student, librarian and admin. Admin can d
 
 | Role | What they can do | Where |
 | --- | --- | --- |
-| Guest | Chat with the book assistant without an account | Login page → "Continue as guest" |
-| Student (`user`) | Sign up, log in, chat, edit their name (Profile), change their password (Settings) | `/signup`, `/login`, `/chat`, menu on their name |
+| Guest | Chat with the book assistant without an account (nothing is saved; a popup warns before "New chat" clears the conversation) | Login page → "Continue as guest" |
+| Student (`user`) | Sign up, log in, chat with **saved chats** (sidebar history, reopen, delete), edit their name (Profile), change their password (Settings) | `/signup`, `/login`, `/chat`, menu on their name |
 | Librarian | Everything a student can, plus the Library page: add, edit and delete books; toggle availability; set copies; manage courses; search and filter; stats cards; import a CSV; "Update AI index" | Menu → Manage books → `/library` |
 | Admin | Everything a librarian can, plus Manage users: list accounts, create librarian or admin accounts, change roles, activate or deactivate, reset passwords | Menu → Manage users → `/admin` |
 
@@ -34,7 +34,8 @@ All four roles work end to end: guest, student, librarian and admin. Admin can d
 | --- | --- | --- |
 | `/api/auth` | `POST /login`, `POST /register`, `GET /me`, `PATCH /me`, `POST /change-password` | Anyone / logged in |
 | `/api/books` | `GET /api/books?course=` | Public |
-| `/api/chat` | `POST /api/chat` (the RAG chat) | Public |
+| `/api/chat` | `POST /api/chat` (the RAG chat; also saves the question and reply when the user is logged in) | Public (saved only if logged in) |
+| `/api/conversations` | `GET` (my saved chats, newest first), `GET /{id}/messages` (oldest first), `DELETE /{id}` | Logged in |
 | `/api/admin` | `GET` and `POST /users`, `PATCH /users/{id}/role`, `PATCH /users/{id}/status`, `POST /users/{id}/reset-password` | Admin |
 | `/api/library` | Books: `GET`, `POST`, `PATCH`, `DELETE` and `POST /books/import` (CSV). Courses: `GET`, `POST`, `PATCH`, `DELETE`. `POST /ai-index` | Librarian, admin |
 
@@ -42,6 +43,9 @@ All four roles work end to end: guest, student, librarian and admin. Admin can d
 
 - **Passwords** are stored only as bcrypt hashes. Nobody can see a real password, so admins reset forgotten ones instead.
 - **Login tokens** are JWTs that last 24 hours. A 401 error logs the user out, and a 403 means the wrong role.
+- **Saved chats (backend):** `POST /api/chat` uses `get_optional_user`, so guests still get answers but nothing is stored. For a logged-in user it calls `save_exchange()`, which creates the conversation on the first message (title = first 60 characters) and saves the question and the reply. It sends back `conversation_id`. Every conversation query also checks the owner, so a user can't open someone else's chat (404).
+- **Saved chats (frontend, `Chat.jsx`):** when a logged-in user opens the page, the sidebar list loads from `GET /api/conversations` (messages are not included, to keep it small). Clicking a chat fetches its messages once (`loaded` flag) and the input stays disabled until they arrive. A new chat first gets a temporary `Date.now()` id on screen, which is swapped for the real `conversation_id` as soon as the first reply comes back. The trash icon deletes a chat (browser confirm first). Guests skip all of this.
+- **`authFetch` and 204:** a successful delete returns 204 with no body, so `authFetch` returns `null` for 204 before it tries to read JSON.
 - **The "Needs AI update" badge** shows on new books, and on books whose AI-relevant fields changed (title, author, publisher, edition, call number, format, courses). Availability, copies and description don't trigger it. "Update AI index" embeds only the books with the badge.
 - **CSV import** uses the same columns as the holdings CSV, plus optional DESCRIPTION and COPIES. It skips books that already exist (same title and edition), creates new courses, and is all or nothing: one bad row means nothing is saved.
 - **Retrieval evaluation:** P@5 0.70 and R@5 0.82 on a 25-query golden set (`backend/evaluation/`).
@@ -60,33 +64,41 @@ Libraria/
 ├─ backend/app/
 │  ├─ main.py                    starts the API, registers the routers
 │  ├─ core/config.py             reads .env (DATABASE_URL, SECRET_KEY, Ollama)
-│  ├─ db/                        session.py (get_db), models.py (User, Book, Course)
-│  ├─ schemas/                   user.py, book.py, chat.py
-│  ├─ repositories/              user.py, book.py, course.py
-│  ├─ services/                  auth, admin, library, book, chat, llm, prompts
-│  ├─ api/                       deps.py (get_current_user, require_roles), routes/
+│  ├─ db/                        session.py (get_db), models.py (User, Book, Course, Conversation, Message)
+│  ├─ schemas/                   user.py, book.py, chat.py, conversation.py
+│  ├─ repositories/              user.py, book.py, course.py, conversation.py
+│  ├─ services/                  auth, admin, library, book, chat, conversation, llm, prompts
+│  ├─ api/                       deps.py (get_current_user, get_optional_user, require_roles), routes/
 │  └─ commands/                  create_admin, embed_books, evaluate_retrieval
 └─ frontend/libraria-app/src/
    ├─ App.jsx                    routes + role checks
-   ├─ context/AuthContext.jsx    login state, authFetch, profile + password
+   ├─ context/AuthContext.jsx    login state, authFetch (token + 204 handling), profile + password
    ├─ pages/auth/                LoginPage, SignUpPage
    ├─ pages/admin/               AdminUsersPage
    ├─ pages/librarian/           LibraryPage
-   ├─ components/chat/           Chat, ChatMessage
+   ├─ components/chat/           Chat (sidebar with saved chats), ChatMessage, BookSearchPanel (search books by title, right side)
    ├─ components/account/        AccountModal (Profile + Settings), LoginModal
    └─ components/librarian/      BookForm, CoursesPanel
 ```
 
 ## What's lacking and what to improve
 
-The biggest gap is saved chats: the `conversations` and `messages` tables exist but nothing uses them yet, so chats disappear on refresh or logout. Tick these off as you go.
+Saved chats are now built (Oct 27). Tick these off as you go.
 
 **High priority (features the handoff plan still needs)**
 
-- [ ] **Saved chats:** save each logged-in user's conversations and messages, and load them in the sidebar. Guests stay unsaved.
-- [ ] **"What students are asking" for librarians:** popular questions, and questions where no good book was found. Needs saved chats first.
+- [ ] **Test saved chats end to end:** the code was written on Oct 27 and has not been checked off here yet. Test by hand: (1) log in, start a new chat, send two messages in a row (the second must not say "Chat not found"); (2) refresh, the chat is in the sidebar and opens with both messages; (3) send a follow-up in the reopened chat and check the AI still remembers it; (4) delete a chat, refresh, and it stays gone; (5) log in as a different user and confirm you don't see the first user's chats; (6) as a guest, check nothing is saved.
+- [ ] **"What students are asking" for librarians:** popular questions, and questions where no good book was found. This is no longer blocked, because chats are now saved.
 - [ ] **Send staff to their page after login:** librarians to `/library`, admins to `/admin`. Today everyone lands on `/chat`.
 - [ ] **Evaluation layers 2–4:** only layer 1 (retrieval: P@5 0.70, R@5 0.82) is done, and the 25-query golden set still needs a group review.
+
+**Medium priority (saved chats polish)**
+
+- [ ] **No rename:** a chat's title is always the first 60 characters of its first message.
+- [ ] **Sidebar is hidden on small screens** (`hidden md:flex`), so chat history can't be reached on a phone-sized window.
+- [ ] **Silent failures:** if loading the chat list, opening a chat or deleting one fails, the error only shows in the browser console.
+- [ ] **The AI only remembers the last 6 messages** of a chat (`MAX_HISTORY`), even in a long saved chat.
+- [ ] **The books the AI used aren't saved:** only the question and the reply are stored, so a reopened chat doesn't show the book list again.
 
 **Medium priority (AI quality)**
 
@@ -96,7 +108,7 @@ The biggest gap is saved chats: the `conversations` and `messages` tables exist 
 
 **Medium priority (code health)**
 
-- [ ] **No automated tests in the repo:** the features were tested by hand and in throwaway scripts, so add `pytest` tests for auth, admin and library.
+- [ ] **No automated tests in the repo:** the features were tested by hand and in throwaway scripts, so add `pytest` tests for auth, admin, library and conversations.
 - [ ] **`updated_at` on books is never updated** by the app (the model has no `onupdate`).
 - [ ] **Course codes:** the database allows the same code with two different names (`UNIQUE (code, name)`), but the app treats the code as unique.
 - [ ] **CSV import:** if the same book appears twice in one file with different courses, only the first row's courses are kept. Excel files must be saved as **CSV UTF-8**, or letters like ñ get garbled.
@@ -107,19 +119,19 @@ The biggest gap is saved chats: the `conversations` and `messages` tables exist 
 
 - [ ] The login token is kept in `localStorage`, which a cross-site scripting bug could read. It lasts 24 hours, with no refresh.
 - [ ] There's no limit on login attempts, and no "forgot password" email (an admin resets it instead).
-- [ ] CORS only allows `http://localhost:5173`, and `API_URL` is hard-coded in `AuthContext.jsx`. Both need settings for a real server.
+- [ ] CORS only allows `http://localhost:5173`, and `API_URL` is hard-coded in `AuthContext.jsx` (and in the guest chat request in `Chat.jsx`). Both need settings for a real server.
 - [ ] Use a long random `SECRET_KEY` on every machine, and never commit `.env`.
 
 ## Suggested next steps
 
-Do saved chats next, because the librarian insights and a good demo both depend on it.
+Test saved chats first, then build the librarian insights on top of them.
 
-1. Push the current work to GitHub (`git add .`, `git commit`, `git push`), then have a teammate set it up fresh from the README to prove it works on another laptop.
-2. Build saved chats (backend: conversation and message repository, service and routes; frontend: load and save chats in `Chat.jsx`).
-3. Add "What students are asking" to the Library page.
-4. Send librarians and admins to their own page after login.
-5. Add `description` to `book_to_text`, re-embed, and re-run the evaluation to compare P@5 and R@5.
-6. Finish evaluation layers 2–4 with the group.
-7. Add `pytest` tests for the auth, admin and library routes.
+1. Run the saved-chats test list above, then push the work to GitHub (`git add .`, `git commit`, `git push`) and have a teammate set it up fresh from the README to prove it works on another laptop.
+2. Add "What students are asking" to the Library page.
+3. Send librarians and admins to their own page after login.
+4. Add `description` to `book_to_text`, re-embed, and re-run the evaluation to compare P@5 and R@5.
+5. Finish evaluation layers 2–4 with the group.
+6. Add `pytest` tests for the auth, admin, library and conversation routes.
+7. Polish saved chats: rename, a visible error message, and a mobile-friendly sidebar.
 
 **How to run and test:** the [README](README.md) has the full setup. Every time, you need 3 things running: Docker (database), `uvicorn app.main:app --reload --port 8000` in `backend` (with the venv on), and `npm run dev` in `frontend/libraria-app`, with Ollama open. Then open `http://localhost:5173`. Make the first admin with `python -m app.commands.create_admin`, and test the API at `http://localhost:8000/docs`.

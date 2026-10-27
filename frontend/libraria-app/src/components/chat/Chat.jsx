@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
+import BookSearchPanel from './BookSearchPanel'; // right side: search real books by title
 import { PaperAirplaneIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import LoginModal from '../account/LoginModal';
 import AccountModal from '../account/AccountModal';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { ArrowRightStartOnRectangleIcon, BookOpenIcon, ChevronUpDownIcon, Cog6ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
-
+import { ArrowRightStartOnRectangleIcon, BookOpenIcon, ChevronUpDownIcon, Cog6ToothIcon, TrashIcon, UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
 const Chat = () => {
   // Logged-in user (from AuthContext)
-  const { user, logout } = useAuth();
+  const { user, logout, authFetch } = useAuth();
   const navigate = useNavigate(); // lets us change pages in code
 
   // All conversations: [{ id, title, messages: [...] }]
@@ -52,6 +52,26 @@ const Chat = () => {
     inputRef.current?.focus();
   }, [messages.length, activeChatId, isLoading]);
 
+   // Runs when the user changes (log in / log out): load their saved chats for the sidebar
+  useEffect(() => {
+    // Guests (or nobody) have no saved chats, so keep the list empty
+    if (!user || user.role === 'guest') {
+      setChats([]);
+      return;
+    }
+
+    const loadChats = async () => {
+      try {
+        const saved = await authFetch('/api/conversations'); // newest first, from the backend
+        // Messages stay empty for now. They load when the chat is clicked (Step 3)
+        setChats(saved.map(c => ({ id: c.id, title: c.title || 'Untitled chat', messages: [], loaded: false })));
+      } catch (error) {
+        console.error('Could not load chats:', error);
+      }
+    };
+    loadChats();
+  }, [user?.id]); // re-run only when a different person logs in
+
   // Runs when the user sends a message
   const handleSubmit = async (e) => {
     e.preventDefault();             // stop page reload
@@ -60,11 +80,14 @@ const Chat = () => {
     const userMessage = input.trim();
     setInput('');                   // clear the box
 
+    // The id the backend knows about: null = brand-new chat, a number = saved chat to add to
+    const conversationId = activeChatId;
+
     // No chat open yet? Create one, titled with the first message
     let chatId = activeChatId;
     if (!chatId) {
       chatId = Date.now(); // simple unique id
-      setChats(prev => [{ id: chatId, title: userMessage.slice(0, 30), messages: [] }, ...prev]);
+      setChats(prev => [{ id: chatId, title: userMessage.slice(0, 60), messages: [] }, ...prev]);
       setActiveChatId(chatId);
     }
 
@@ -79,22 +102,37 @@ const Chat = () => {
     setLoadingChatIds(prev => [...prev, chatId]); // show loading dots (this chat only)
 
     try {
-      // Send message to the backend
-      const response = await fetch('http://localhost:8000/api/chat', {
+      let data;
+      if (user.role === 'guest') {
+        // Guests: plain request with no token, nothing gets saved
+        // Send message to the backend
+        const response = await fetch('http://localhost:8000/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: userMessage, history }),
+        });
 
-        
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: userMessage, history }),
-      });
+        // If the backend had a problem (e.g. Ollama is off), jump to the error message
+        if (!response.ok) throw new Error(`Server error ${response.status}`);
 
-       // If the backend had a problem (e.g. Ollama is off), jump to the error message
-      if (!response.ok) throw new Error(`Server error ${response.status}`);
-
-      const data = await response.json(); // read the reply
+        data = await response.json(); // read the reply
+      } else {
+        // Logged in: authFetch sends the token, and conversation_id tells the backend which saved chat to add to
+        // (authFetch already throws if the backend had a problem, so the catch below still works)
+        data = await authFetch('/api/chat', 'POST', { message: userMessage, history, conversation_id: conversationId });
+      }
       addMessage(chatId, { text: data.message, isAI: true }); // add AI reply
+      
+      // New logged-in chat: swap the fake id (Date.now) for the real id from the database
+      // Guests get conversation_id = null, and saved chats already have their real id, so both skip this
+      if (conversationId === null && data.conversation_id != null) {
+        const realId = data.conversation_id;
+        setChats(prev => prev.map(c => (c.id === chatId ? { ...c, id: realId } : c)));
+        // Only move the highlight if the user is still looking at this chat
+        setActiveChatId(current => (current === chatId ? realId : current));
+      }
       
     } catch (error) {
       // Show an error message if the request fails
@@ -121,6 +159,38 @@ const Chat = () => {
       setShowDiscardPopup(false);
     };
 
+    // Open a saved chat. If its messages haven't been fetched yet, get them from the backend first
+  const openChat = async (chat) => {
+    setActiveChatId(chat.id);
+    if (chat.loaded !== false) return; // already has its messages (or it's a brand-new chat)
+
+    // Reuse the loading dots + disabled input, so the user can't send before the messages arrive
+    setLoadingChatIds(prev => [...prev, chat.id]);
+    try {
+      const saved = await authFetch(`/api/conversations/${chat.id}/messages`); // oldest first
+      // The backend uses { role, content }, but our screen uses { text, isAI }
+      const loadedMessages = saved.map(m => ({ text: m.content, isAI: m.role === 'assistant' }));
+      // Store them on this chat and mark it as loaded so we don't fetch again
+      setChats(prev => prev.map(c => (c.id === chat.id ? { ...c, messages: loadedMessages, loaded: true } : c)));
+    } catch (error) {
+      console.error('Could not load messages:', error);
+    } finally {
+      setLoadingChatIds(prev => prev.filter(id => id !== chat.id)); // always stop loading
+    }
+  };
+
+    // Delete a saved chat: ask the backend first, then remove it from the sidebar
+  const deleteChat = async (chat) => {
+    if (!window.confirm('Delete this chat?')) return; // it can't be undone
+    try {
+      await authFetch(`/api/conversations/${chat.id}`, 'DELETE'); // works thanks to the 204 fix
+      setChats(prev => prev.filter(c => c.id !== chat.id));
+      if (activeChatId === chat.id) setActiveChatId(null); // was open? go back to the empty screen
+    } catch (error) {
+      console.error('Could not delete chat:', error);
+    }
+  };
+
   // Log out (or "Log in" for guests): clear the session and go to the login page
   const handleLogout = () => {
     logout();
@@ -128,7 +198,7 @@ const Chat = () => {
   };
 
   return (
-    // Row layout: sidebar (left) + chat (right)
+    // // Row layout: sidebar (left) + chat (middle) + explicit keyword-dependent book search (right)
     <div className="flex h-screen bg-white">
 
       {/* ===== SIDEBAR (left) ===== */}
@@ -162,15 +232,27 @@ const Chat = () => {
           ) : (
             // One button per saved chat. The open one is highlighted
             chats.map(chat => (
-              <button
-                key={chat.id}
-                onClick={() => setActiveChatId(chat.id)}
-                className={`w-full truncate rounded-lg px-3 py-2 text-left text-sm ${
-                  chat.id === activeChatId ? 'bg-fuchsia-100 text-fuchsia-900' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                {chat.title}
-              </button>
+              // A box holding two buttons side by side: the chat title and the trash icon
+                <div
+                  key={chat.id}
+                  className={`flex items-center rounded-lg ${
+                    chat.id === activeChatId ? 'bg-fuchsia-100 text-fuchsia-900' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <button
+                    onClick={() => openChat(chat)}
+                    className="min-w-0 flex-1 truncate px-3 py-2 text-left text-sm"
+                  >
+                    {chat.title}
+                  </button>
+                  <button
+                    onClick={() => deleteChat(chat)}
+                    aria-label="Delete chat"
+                    className="p-2 text-gray-400 hover:text-red-600"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
             ))
           )}
         </div>
@@ -333,6 +415,14 @@ const Chat = () => {
           </form>
         </div>
       </main>
+      {/* ===== BOOK SEARCH (right) ===== */}
+      {/* "Ask Libraria about it" puts the question in the chat box, ready to send */}
+      <BookSearchPanel
+        onAsk={(question) => {
+          setInput(question);           // put the question in the chat box
+          inputRef.current?.focus();    // ?. = only if the box exists
+        }}
+      />
             {/* ===== DISCARD POPUP (guests only) ===== */}
       {showDiscardPopup && (
         // Dark see-through background covering the whole screen. Clicking it closes the popup
