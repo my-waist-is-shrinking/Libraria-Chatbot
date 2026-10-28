@@ -16,6 +16,10 @@ def list_for_user(db: Session, user_id: int) -> list[Conversation]:
 
 def get_for_user(db: Session, conversation_id: int, user_id: int) -> Conversation | None:
     """Find one chat, but only if it belongs to this user (None otherwise)."""
+    # Guard against 32-bit integer overflow in PostgreSQL
+    if conversation_id <= 0 or conversation_id > 2147483647:
+        return None
+
     stmt = select(Conversation).where(
         Conversation.id == conversation_id,
         Conversation.user_id == user_id,               # stops users from opening someone else's chat

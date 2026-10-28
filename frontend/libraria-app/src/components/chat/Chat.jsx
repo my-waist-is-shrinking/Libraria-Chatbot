@@ -122,7 +122,9 @@ const Chat = () => {
     setInput('');                   // clear the box
 
     // The id the backend knows about: null = brand-new chat, a number = saved chat to add to
-    const conversationId = activeChatId;
+    // The id the backend knows about: null = brand-new chat, a number = saved chat to add to
+    // Guard: Date.now() timestamp is a temporary frontend ID, don't send it as a DB id!
+    const conversationId = activeChatId && activeChatId <= 2147483647 ? activeChatId : null;
 
     // No chat open yet? Create one, titled with the first message
     let chatId = activeChatId;
@@ -167,7 +169,7 @@ const Chat = () => {
 
       addMessage(chatId, { text: data.message, isAI: true });
 
-      if (conversationId === null && data.conversation_id != null) {
+      if (data.conversation_id != null) {
         const realId = data.conversation_id;
         setChats(prev => prev.map(c => (c.id === chatId ? { ...c, id: realId } : c)));
         setActiveChatId(current => (current === chatId ? realId : current));

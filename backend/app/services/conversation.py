@@ -28,10 +28,16 @@ def delete_conversation(db: Session, user: User, conversation_id: int) -> None:
 
 def save_exchange(db: Session, user: User, conversation_id: int | None, question: str, reply: str) -> int:
     """Save the student's question + the AI's reply. Starts a new chat if there's no id yet. Returns the chat id."""
-    if conversation_id is None:                                   # first message: make a new chat
+    # 32-bit signed integer guard: PostgreSQL INTEGER max is 2,147,483,647.
+    # If a frontend temporary timestamp (like Date.now()) is passed, treat as a new conversation.
+    if conversation_id is None or conversation_id <= 0 or conversation_id > 2147483647:
         conversation = conversation_repo.create(db, user.id, question[:TITLE_LENGTH])
     else:
-        conversation = get_conversation(db, user, conversation_id)  # existing chat (owner checked)
+        try:
+            conversation = get_conversation(db, user, conversation_id)  # existing chat (owner checked)
+        except HTTPException:
+            conversation = conversation_repo.create(db, user.id, question[:TITLE_LENGTH])
+
     conversation_repo.add_message(db, conversation.id, "user", question)
     conversation_repo.add_message(db, conversation.id, "assistant", reply)
     return conversation.id
