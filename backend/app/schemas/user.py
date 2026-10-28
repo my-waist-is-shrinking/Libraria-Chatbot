@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
@@ -47,6 +48,7 @@ class UserRead(BaseModel):
     role: Role
     is_active: bool
     # hashed_password is NOT included: never send it to the frontend
+    created_at: datetime |None = None
 
 
 class TokenResponse(BaseModel):

@@ -76,7 +76,7 @@ def edit_book(db: Session, book_id: int, data: BookUpdate) -> Book:
         needs_ai_update = True                        # courses are part of the AI text too
 
     if needs_ai_update:
-        book.embedding = None                         # empty = "Needs AI update" badge
+        book.needs_reindex = True
     return book
 
 
@@ -128,7 +128,7 @@ def edit_course(db: Session, course_id: int, data: CourseUpdate) -> Course:
 
     # course names are in the AI text, so its books need an AI update
     for book in books_with_course(db, course):
-        book.embedding = None
+        book.needs_reindex = True
     return course
 
 
@@ -136,10 +136,9 @@ def delete_course(db: Session, course_id: int) -> None:
     """Remove a course. Its books stay, they just lose this course tag."""
     course = get_course_or_error(db, course_id)
     for book in books_with_course(db, course):
-        book.courses.remove(course)                   # untag the book first
-        book.embedding = None                         # its AI text changed
+        book.courses.remove(course)
+        book.needs_reindex = True
     course_repo.delete(db, course)
-
 
 # ---------- CSV import ----------
 
@@ -283,6 +282,7 @@ def update_ai_index(db: Session) -> int:
         # Save each book's numbers
         for book, vector in zip(batch, vectors):
             book.embedding = vector
-        db.flush()                                    # get_db saves everything at the end
+            book.needs_reindex = False
+        db.flush()                                 # get_db saves everything at the end
 
     return len(books)

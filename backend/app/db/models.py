@@ -34,18 +34,19 @@ class Book(Base):
     call_number: Mapped[str | None] = mapped_column(String(50))
     format: Mapped[str] = mapped_column(String(10))
     description: Mapped[str | None] = mapped_column(Text)
+    cover_image: Mapped[str | None] = mapped_column(Text)    
     is_available: Mapped[bool]
     copies: Mapped[int] = mapped_column(default=1)             # how many copies the library owns
     embedding = mapped_column(Vector(768), nullable=True)      # AI numbers (filled in part 2)
+    needs_reindex: Mapped[bool] = mapped_column(default=False)
 
     # All courses this book belongs to (uses the junction table)
     courses: Mapped[list[Course]] = relationship(secondary=book_courses)
 
     @property
     def is_indexed(self) -> bool:
-        """True = the AI already knows this book. False = needs "Update AI index"."""
-        return self.embedding is not None
-
+        """True = the AI already knows this book and has no pending edits."""
+        return self.embedding is not None and not self.needs_reindex
 
 class User(Base):
     """A logged-in account. Guests are NOT stored."""

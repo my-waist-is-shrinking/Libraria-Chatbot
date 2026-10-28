@@ -20,6 +20,9 @@ def book_to_text(book: Book) -> str:
     # Where to find it: e-books are online, print books use the call number
     location = "E-Book (online)" if book.format == "E-Book" else (book.call_number or "Ask the librarian")
 
+    # Availability + copies
+    status = f"Available ({book.copies} copies)" if book.is_available else "Not available"
+
     # Build the text line by line, skipping anything the CSV left empty
     lines = [f"Title: {book.title}"]
     if book.author:                      # only include the author if we have one
@@ -30,6 +33,9 @@ def book_to_text(book: Book) -> str:
         lines.append(f"Edition: {book.edition}")
     lines.append(f"Courses: {courses}")
     lines.append(f"Location: {location}")
+    lines.append(f"Status: {status}")
+    if book.description:                 # include book description if the librarian added one
+        lines.append(f"Description: {book.description}")
 
     # Join into one block of text, one detail per line
     return "\n".join(lines)

@@ -37,7 +37,9 @@ class BookRead(BaseModel):
     call_number: str | None
     format: str
     description: str | None   # the librarian page shows and edits this
+    cover_image: str | None
     is_available: bool
+    
     copies: int               # how many copies the library owns
     is_indexed: bool          # False = shows the "Needs AI update" badge
     courses: list[CourseRead]
@@ -53,6 +55,7 @@ class BookCreate(BaseModel):
     call_number: str | None = Field(default=None, max_length=50)
     format: BookFormat = "Print"                           # "Print" if not given
     description: str | None = None
+    cover_image: str | None
     is_available: bool = True                              # new books start available
     copies: int = Field(default=1, ge=0)                   # ge=0 = 0 or more (no negative copies)
     course_ids: list[int] = []                             # which courses this book belongs to, e.g. [1, 3]
@@ -67,6 +70,7 @@ class BookUpdate(BaseModel):
     call_number: str | None = Field(default=None, max_length=50)
     format: BookFormat | None = None
     description: str | None = None
+    cover_image: str | None = None
     is_available: bool | None = None
     copies: int | None = Field(default=None, ge=0)         # None = keep the same number
     course_ids: list[int] | None = None                    # None = keep the courses as they are

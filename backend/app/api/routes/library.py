@@ -1,6 +1,9 @@
+import shutil
+from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_roles
@@ -91,6 +94,32 @@ def delete_course(course_id: int, db: Session = Depends(get_db), staff: User = D
     """Remove a course (its books stay)."""
     handle_errors(lambda: library_service.delete_course(db, course_id))
     return {"message": "Course deleted."}
+
+
+# ---------- Cover Upload ----------
+
+@router.post("/upload-cover")
+def upload_cover(
+    file: UploadFile = File(...),
+    staff: User = Depends(staff_only),
+) -> Any:
+    """Save an uploaded book cover image to uploads/covers and return its URL."""
+    # Validate extension
+    allowed = {".jpg", ".jpeg", ".png", ".webp"}
+    ext = Path(file.filename or "").suffix.lower()
+    if ext not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported image format. Please use {', '.join(allowed)}.",
+        )
+
+    # Save to disk with unique name
+    unique_name = f"{uuid4().hex}{ext}"
+    dest = Path("uploads/covers") / unique_name
+    with open(dest, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"url": f"http://localhost:8000/uploads/covers/{unique_name}"}
 
 
 # ---------- AI index ----------

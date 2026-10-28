@@ -1,10 +1,10 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.db.models import Book, Course
 
 
-def list_books(db: Session, course_code: str | None = None, limit: int = 50) -> list[Book]:
+def list_books(db: Session, course_code: str | None = None, limit: int = 500) -> list[Book]:
     """Get books, optionally only for one course."""
     stmt = (
         select(Book)
@@ -35,11 +35,11 @@ def list_all(db: Session) -> list[Book]:
 
 
 def list_not_indexed(db: Session) -> list[Book]:
-    """Get only the books the AI doesn't know yet (embedding is empty)."""
+    """Get books the AI doesn't know yet or that have pending updates."""
     stmt = (
         select(Book)
         .options(selectinload(Book.courses))
-        .where(Book.embedding.is_(None))      # "is_(None)" = the column is empty
+        .where(or_(Book.embedding.is_(None), Book.needs_reindex.is_(True)))
         .order_by(Book.id)
     )
     return list(db.scalars(stmt).all())

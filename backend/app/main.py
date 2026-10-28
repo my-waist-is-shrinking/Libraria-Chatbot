@@ -1,10 +1,18 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import admin, auth, books, chat, conversations, library
 from app.core.config import settings
 
 app = FastAPI(title="Libraria API")
+
+# Ensure uploads directory exists
+UPLOAD_DIR = Path("uploads/covers")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Allow the React app (port 5173) to call this backend
 app.add_middleware(
