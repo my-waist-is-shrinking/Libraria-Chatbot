@@ -190,7 +190,7 @@ const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
     const loadBooks = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/api/books`);
+        const response = await fetch(`${API_URL}/api/books`, { headers: { "ngrok-skip-browser-warning": "true" } });
         if (!response.ok) throw new Error();
         setAllBooks(await response.json());
         setError('');

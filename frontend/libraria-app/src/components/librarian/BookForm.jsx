@@ -54,6 +54,7 @@ const BookForm = ({ book, courses, onSave, onClose }) => {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${savedUser.token}`,
+          'ngrok-skip-browser-warning': 'true',
         },
         body: formData,
       });

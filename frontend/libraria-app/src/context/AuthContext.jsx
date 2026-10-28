@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     try {
       response = await fetch(`${API_URL}${path}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
         body: JSON.stringify(body),
       });
     } catch {
@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
     try {
       response = await fetch(`${API_URL}${path}`, {
         method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.token}` },
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}) },
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch {

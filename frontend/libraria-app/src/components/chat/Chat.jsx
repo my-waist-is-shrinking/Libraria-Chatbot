@@ -146,7 +146,7 @@ const Chat = () => {
     abortRefs.current[chatId] = controller;
 
     try {
-      const headers = { 'Content-Type': 'application/json' };
+      const headers = { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
       if (user.role !== 'guest' && user?.token) {
         headers.Authorization = `Bearer ${user.token}`;
       }
