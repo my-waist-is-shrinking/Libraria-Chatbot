@@ -9,10 +9,10 @@ export function AuthProvider({ children }) {
   // Load saved user so refreshing the page doesn't log you out
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('libraria-user');
-    if (!saved) return null;
+    if (!saved) return { name: 'Guest', role: 'guest' };
     const parsed = JSON.parse(saved);
     // Old fake logins have no token, so make them log in again
-    if (parsed.role !== 'guest' && !parsed.token) return null;
+    if (parsed.role !== 'guest' && !parsed.token) return { name: 'Guest', role: 'guest' };
     return parsed;
   });
 

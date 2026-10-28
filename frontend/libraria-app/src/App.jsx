@@ -33,17 +33,15 @@ function App() {
         element={isStaff ? <Chat /> : <Navigate to={user ? '/chat' : '/login'} />}
       />
 
-      {/* Book search page (opened from the left sidebar) */}
-      <Route path="/books" element={user ? <Chat /> : <Navigate to="/login" />} />
-
       {/* Discover books page */}
-      <Route path="/books" element={user ? <Chat /> : <Navigate to="/login" />} />
+      <Route path="/books" element={<Chat />} />
 
       {/* Categories (courses) page */}
-      <Route path="/categories" element={user ? <Chat /> : <Navigate to="/login" />} />
+      <Route path="/categories" element={<Chat />} />
 
-      {/* Any other URL: send to the right place */}
-      <Route path="*" element={<Navigate to={user ? '/chat' : '/login'} />} />
+      {/* Any other URL or root (/): send straight to Discover */}
+      <Route path="*" element={<Navigate to="/books" />} />
+      
     </Routes>
   );
 }
