@@ -2,8 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/auth/LoginPage';
 import SignUpPage from './pages/auth/SignUpPage';
-import AdminUsersPage from './pages/admin/AdminUsersPage';
-import LibraryPage from './pages/librarian/LibraryPage'; // librarian page: books, courses, AI index
 import Chat from './components/chat/Chat'; // change this path if your Chat.jsx is somewhere else
 
 function App() {
@@ -26,14 +24,23 @@ function App() {
       {/* Admin page: admins only. Everyone else gets sent away */}
       <Route
         path="/admin"
-        element={user?.role === 'admin' ? <AdminUsersPage /> : <Navigate to={user ? '/chat' : '/login'} />}
+        element={user?.role === 'admin' ? <Chat /> : <Navigate to={user ? '/chat' : '/login'} />}
       />
 
       {/* Library page: librarians + admins. Students/guests get sent back to chat */}
       <Route
         path="/library"
-        element={isStaff ? <LibraryPage /> : <Navigate to={user ? '/chat' : '/login'} />}
+        element={isStaff ? <Chat /> : <Navigate to={user ? '/chat' : '/login'} />}
       />
+
+      {/* Book search page (opened from the left sidebar) */}
+      <Route path="/books" element={user ? <Chat /> : <Navigate to="/login" />} />
+
+      {/* Discover books page */}
+      <Route path="/books" element={user ? <Chat /> : <Navigate to="/login" />} />
+
+      {/* Categories (courses) page */}
+      <Route path="/categories" element={user ? <Chat /> : <Navigate to="/login" />} />
 
       {/* Any other URL: send to the right place */}
       <Route path="*" element={<Navigate to={user ? '/chat' : '/login'} />} />

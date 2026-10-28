@@ -35,24 +35,24 @@ const LoginModal = ({ onClose }) => {
     >
       {/* Popup box. stopPropagation = clicking inside doesn't close it */}
       <div
-        className="relative w-full max-w-xs rounded-2xl bg-white p-6 shadow-xl"
+        className="relative w-full max-w-xs rounded-2xl bg-white p-6 shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* X button (top right) */}
-        <button onClick={onClose} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
           <XMarkIcon className="h-5 w-5" />
         </button>
 
         {/* Heading */}
-        <h2 className="text-xl font-bold text-gray-900">
-          Sign in to <em className="font-normal text-fuchsia-700">Libraria.</em>
+        <h2 className="text-xl font-bold text-[#251E36]">
+          Sign in to <span className="font-semibold text-[#4E426D]">Libraria.</span>
         </h2>
         <p className="mt-1 text-xs text-gray-500">Your current chat will be kept.</p>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+        <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
           {/* Email */}
-          <div className="space-y-1">
-            <label htmlFor="modal-email" className="text-[10px] font-medium uppercase tracking-wider text-gray-700">
+          <div className="space-y-1.5">
+            <label htmlFor="modal-email" className="text-[10px] font-semibold uppercase tracking-wider text-[#8E8EA0]">
               Email
             </label>
             <input
@@ -62,13 +62,13 @@ const LoginModal = ({ onClose }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="h-10 w-full rounded-xl border border-gray-200 px-3 text-xs text-[#251E36] focus:border-[#4E426D] focus:outline-none focus:ring-2 focus:ring-[#4E426D]/20 transition placeholder:text-gray-400"
             />
           </div>
 
           {/* Password */}
-          <div className="space-y-1">
-            <label htmlFor="modal-password" className="text-[10px] font-medium uppercase tracking-wider text-gray-700">
+          <div className="space-y-1.5">
+            <label htmlFor="modal-password" className="text-[10px] font-semibold uppercase tracking-wider text-[#8E8EA0]">
               Password
             </label>
             <input
@@ -78,13 +78,13 @@ const LoginModal = ({ onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="h-10 w-full rounded-xl border border-gray-200 px-3 text-xs text-[#251E36] focus:border-[#4E426D] focus:outline-none focus:ring-2 focus:ring-[#4E426D]/20 transition placeholder:text-gray-400"
             />
           </div>
 
           {/* Error box */}
           {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+            <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
               {error}
             </p>
           )}
@@ -93,7 +93,7 @@ const LoginModal = ({ onClose }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="h-9 w-full rounded-full bg-amber-600 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+            className="h-10 w-full rounded-xl bg-[#4E426D] text-xs font-semibold text-white shadow-xs transition hover:bg-[#3E3457] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Logging in...' : 'Log in'}
           </button>
@@ -102,7 +102,7 @@ const LoginModal = ({ onClose }) => {
         {/* Stay as guest = just close */}
         <button
           onClick={onClose}
-          className="mt-2 h-9 w-full rounded-full border-2 border-gray-300 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          className="mt-2.5 h-10 w-full rounded-xl border border-gray-200 text-xs font-semibold text-[#251E36] hover:bg-gray-50 transition"
         >
           Continue as Guest
         </button>

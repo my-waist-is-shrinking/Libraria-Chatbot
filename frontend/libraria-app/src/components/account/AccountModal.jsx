@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { XMarkIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../../context/AuthContext';
 
-// Shared styles for inputs and labels (same look as the login page)
-const INPUT = 'h-9 w-full rounded-lg border-2 border-gray-300 px-3 text-xs focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:bg-gray-100 disabled:text-gray-500';
-const LABEL = 'text-[10px] font-medium uppercase tracking-wider text-gray-700';
+// Shared styles for inputs and labels
+const INPUT = 'h-10 w-full rounded-xl border border-gray-200 px-3 text-xs text-[#251E36] focus:border-[#4E426D] focus:outline-none focus:ring-2 focus:ring-[#4E426D]/20 disabled:bg-gray-50 disabled:text-gray-400 transition placeholder:text-gray-400';
+const LABEL = 'text-[10px] font-semibold uppercase tracking-wider text-[#8E8EA0]';
 
 // Green "it worked" box or red error box
 const Notice = ({ type, text }) =>
   text ? (
     <p
-      className={`rounded-lg border px-3 py-2 text-xs ${
-        type === 'error' ? 'border-red-200 bg-red-50 text-red-600' : 'border-green-200 bg-green-50 text-green-700'
+      className={`rounded-xl border px-3 py-2 text-xs font-medium ${
+        type === 'error' ? 'border-red-200 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
       }`}
     >
       {text}
@@ -31,7 +31,7 @@ const ProfileTab = () => {
     setIsLoading(true);
     try {
       await updateProfile(fullName);
-      setMessage({ type: 'success', text: 'Profile saved.' });
+      setMessage({ type: 'success', text: 'Profile saved successfully.' });
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -40,18 +40,20 @@ const ProfileTab = () => {
   };
 
   return (
-    <form onSubmit={handleSave} className="space-y-3">
+    <form onSubmit={handleSave} className="space-y-4">
       {/* Avatar + role */}
-      <div className="flex items-center gap-3 pb-2">
-        <UserCircleIcon className="h-12 w-12 text-gray-400" />
+      <div className="flex items-center gap-3 pb-1">
+        <UserCircleIcon className="h-12 w-12 text-[#4E426D]/40" />
         <div>
-          <p className="text-sm font-medium text-gray-900">{user.name}</p>
-          <span className="text-xs capitalize text-fuchsia-700">{user.role}</span>
+          <p className="text-sm font-semibold text-[#251E36]">{user.name}</p>
+          <span className="inline-block mt-0.5 rounded-full bg-[#EFEAFC] px-2.5 py-0.5 text-[11px] font-semibold capitalize text-[#4E426D]">
+            {user.role}
+          </span>
         </div>
       </div>
 
       {/* Full name (can change) */}
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="profile-name" className={LABEL}>Full name</label>
         <input
           id="profile-name"
@@ -64,7 +66,7 @@ const ProfileTab = () => {
       </div>
 
       {/* Email (can't change, it's what you log in with) */}
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="profile-email" className={LABEL}>Email</label>
         <input id="profile-email" type="email" value={user.email} disabled className={INPUT} />
       </div>
@@ -74,7 +76,7 @@ const ProfileTab = () => {
       <button
         type="submit"
         disabled={isLoading || !fullName.trim() || fullName.trim() === user.name}
-        className="h-9 w-full rounded-full bg-amber-600 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+        className="h-10 w-full rounded-xl bg-[#4E426D] text-xs font-semibold text-white shadow-xs transition hover:bg-[#3E3457] disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {isLoading ? 'Saving...' : 'Save changes'}
       </button>
@@ -101,7 +103,7 @@ const SettingsTab = () => {
     setIsLoading(true);
     try {
       await changePassword(currentPassword, newPassword);
-      setMessage({ type: 'success', text: 'Password changed.' });
+      setMessage({ type: 'success', text: 'Password changed successfully.' });
       // Clear the boxes after it works
       setCurrentPassword('');
       setNewPassword('');
@@ -114,10 +116,10 @@ const SettingsTab = () => {
   };
 
   return (
-    <form onSubmit={handleChange} className="space-y-3">
-      <p className="text-sm font-medium text-gray-900">Change password</p>
+    <form onSubmit={handleChange} className="space-y-4">
+      <p className="text-xs font-semibold text-[#251E36]">Change password</p>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="current-password" className={LABEL}>Current password</label>
         <input
           id="current-password"
@@ -129,7 +131,7 @@ const SettingsTab = () => {
         />
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="new-password" className={LABEL}>New password</label>
         <input
           id="new-password"
@@ -142,7 +144,7 @@ const SettingsTab = () => {
         />
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="confirm-password" className={LABEL}>Confirm new password</label>
         <input
           id="confirm-password"
@@ -159,7 +161,7 @@ const SettingsTab = () => {
       <button
         type="submit"
         disabled={isLoading || !currentPassword || !newPassword || !confirm}
-        className="h-9 w-full rounded-full bg-amber-600 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+        className="h-10 w-full rounded-xl bg-[#4E426D] text-xs font-semibold text-white shadow-xs transition hover:bg-[#3E3457] disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {isLoading ? 'Changing...' : 'Change password'}
       </button>
@@ -177,8 +179,10 @@ const AccountModal = ({ tab = 'profile', onClose }) => {
     <button
       type="button"
       onClick={() => setActiveTab(name)}
-      className={`flex-1 rounded-lg py-1.5 text-xs font-medium ${
-        activeTab === name ? 'bg-white text-fuchsia-900 shadow' : 'text-gray-600 hover:text-gray-900'
+      className={`flex-1 rounded-lg py-2 text-xs font-medium transition ${
+        activeTab === name
+          ? 'bg-white text-[#4E426D] font-semibold shadow-xs'
+          : 'text-gray-500 hover:text-[#251E36]'
       }`}
     >
       {label}
@@ -189,14 +193,14 @@ const AccountModal = ({ tab = 'profile', onClose }) => {
     // Dark see-through background. Clicking it closes the popup
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
       {/* Popup box. stopPropagation = clicking inside doesn't close it */}
-      <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-gray-100" onClick={(e) => e.stopPropagation()}>
         {/* X button (top right) */}
-        <button onClick={onClose} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
           <XMarkIcon className="h-5 w-5" />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900">
-          Your <em className="font-normal text-fuchsia-700">account</em>
+        <h2 className="text-xl font-bold text-[#251E36]">
+          Your <span className="font-semibold text-[#4E426D]">account</span>
         </h2>
 
         {/* Tabs */}

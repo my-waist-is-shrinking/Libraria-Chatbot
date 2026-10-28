@@ -1,0 +1,14 @@
+/* Custom Background Patterns & Decorative Themes */
+
+.bg-pattern-chat {
+  background-color: #EFEAFC;
+  opacity: 0.75;
+  background-image: radial-gradient(#4E426D 1px, #EFEAFC 1px);
+  background-size: 10px 10px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 75%);
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
