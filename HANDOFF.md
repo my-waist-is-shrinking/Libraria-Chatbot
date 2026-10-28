@@ -1,137 +1,158 @@
-# Libraria Handoff Summary
+# Libraria — Project Handoff & Architecture Notes
 
-_As of 2026-10-27 · gio_
+_Last updated: October 29, 2026 · Maintainer: gio_
 
-## Overview
+## What is Libraria? (Quick recap)
 
-Libraria is a RAG (retrieval-augmented generation) web chatbot that recommends CCS library books. It finds the closest books to a student's question with pgvector, then a local Ollama model writes the answer using only those books. It runs fully on one laptop, with no paid APIs.
+Libraria is an offline, full-stack RAG (Retrieval-Augmented Generation) library assistant built specifically for our College of Computer Studies (CCS) students and faculty. Instead of connecting to cloud AI services or letting an LLM guess what books might exist, Libraria performs vector similarity searches across our actual physical holdings and local e-books using PostgreSQL + pgvector. It extracts matching catalog context and feeds only those verified titles to an offline Ollama model to generate grounded recommendations and conceptual explanations.
 
-| Part | Technology |
+Everything runs locally on a student laptop with zero API fees.
+
+| Layer | Stack |
 | --- | --- |
-| Frontend | Vite + React, Tailwind CSS, react-router-dom v7, Headless UI, Heroicons |
-| Backend | FastAPI, SQLAlchemy 2.0, Pydantic, bcrypt (passwords), PyJWT (login tokens) |
-| Database | PostgreSQL 17 + pgvector, in Docker (container `libraria-db`) |
-| AI | Ollama: `nomic-embed-text` (embeddings, 768 numbers), `llama3.2:3b` or `qwen2.5:7b` (chat) |
+| **Frontend** | Vite + React, Tailwind CSS, react-router-dom v7, Headless UI, Heroicons, Poppins typography |
+| **Backend** | FastAPI, SQLAlchemy 2.0, Pydantic, bcrypt (passwords), PyJWT (token auth) |
+| **Database** | PostgreSQL 17 + pgvector running via Docker (`libraria-db`) |
+| **Local AI** | Ollama: `nomic-embed-text` (768-dim embeddings) + `llama3.2:3b` or `qwen2.5:3b` (fast local chat) / `qwen2.5:7b` |
 
-The backend uses four layers, and each request goes down them in order: **routes** (the URLs) → **services** (the rules) → **repositories** (database queries) → **db** (tables). Routes never touch the database directly. `get_db` saves (commits) at the end of a request, and undoes everything (rollback) if an error happens.
+The backend strictly follows a 4-tier pattern: **Routes → Services → Repositories → Database Models**. Routes only handle request schemas and responses, services handle business logic, repositories run database queries, and SQLAlchemy models define table structures. Routes never touch the database directly. Database transactions are scoped using FastAPI dependencies (`get_db`) that automatically commit on success and roll back if anything throws an exception.
 
-The book data came from `database/BSCS_Holdings_Cleaned.csv`, loaded by `database/import_books.sql`: 178 books in 30 courses after duplicates were merged.
+Our core catalog was loaded from `database/BSCS_Holdings_Cleaned.csv` via `database/import_books.sql`, yielding 178 unique books mapped across 30 CCS courses after removing duplicates.
 
-## What's done
+---
 
-All four roles work end to end: guest, student, librarian and admin. Admin can do everything a librarian can.
+## What we just shipped (Recent updates: Oct 28–29)
 
-| Role | What they can do | Where |
+1. **Sidebar modularization & refactoring**:
+   - Extracted all sidebar code out of `Chat.jsx` into a standalone [`Sidebar.jsx`](frontend/libraria-app/src/components/chat/Sidebar.jsx).
+   - Dropped `Chat.jsx` down from **~1,026 lines to 622 lines**, making the active chat view way easier to read and maintain.
+2. **Saved chats polish**:
+   - **Pinned chats:** Students can pin their go-to conversations to the top of the sidebar. Pinned IDs persist per user in browser `localStorage`.
+   - **Inline title renaming:** Users can rename chat threads directly in the sidebar list; updates sync to the backend via `PATCH /api/conversations/{id}`.
+   - **Custom delete confirmation:** Swapped out the browser's native `window.confirm` popup for a custom zero-blur modal matching the app's aesthetic.
+   - **Full title hover tooltips:** Floating dark tooltip renders on hover over truncated conversation titles.
+3. **Responsive mobile off-canvas drawer**:
+   - On screens under 768px (`< md:`), the persistent desktop rail switches to an off-canvas drawer with a dark backdrop overlay (`bg-black/40`), opened via a hamburger button in the top header.
+4. **Design system & visual polish**:
+   - Standardized all typography on the Google Font **Poppins**.
+   - Uniform palette: Dusk Lavender (`#4E426D`), Lavender Mist (`#EFEAFC`), Obsidian (`#251E36`), and Slate (`#5C5277`).
+   - Welcoming radial dot grid pattern on the new chat screen (`src/styles/backgrounds.css`).
+   - Strict zero-blur policy (solid and translucent colors only, no laggy `backdrop-blur-*` filters).
+5. **AI 3B guardrails & prompt tuning**:
+   - Tuned `backend/app/services/prompts.py` with explicit negative constraints to keep lightweight 3B models (`llama3.2:3b`, `qwen2.5:3b`) fast and strictly in-character without echoing internal prompt tags or developer rules.
+   - Replaced raw bracket delimiters like `[1]` with clean `---` dividers in `chat.py`.
+6. **RAGAS evaluation pipeline**:
+   - Added `backend/app/commands/evaluate_ragas.py` with compatibility shims for running local multi-metric evaluations (faithfulness, answer relevancy, context recall, and context precision).
+
+---
+
+## What we've built so far (Feature breakdown)
+
+All 4 application roles are fully functional end-to-end:
+
+| Role | What they can do | Where to find it |
 | --- | --- | --- |
-| Guest | Chat with the book assistant without an account (nothing is saved; a popup warns before "New chat" clears the conversation) | Login page → "Continue as guest" |
-| Student (`user`) | Sign up, log in, chat with **saved chats** (sidebar history, reopen, delete), edit their name (Profile), change their password (Settings) | `/signup`, `/login`, `/chat`, menu on their name |
-| Librarian | Everything a student can, plus the Library page: add, edit and delete books; toggle availability; set copies; manage courses; search and filter; stats cards; import a CSV; "Update AI index" | Menu → Manage books → `/library` |
-| Admin | Everything a librarian can, plus Manage users: list accounts, create librarian or admin accounts, change roles, activate or deactivate, reset passwords | Menu → Manage users → `/admin` |
+| **Guest** | Chat with the book assistant without an account (sessions aren't saved; a custom modal confirms before "New chat" wipes the screen) | Login page → "Continue as guest" |
+| **Student** (`user`) | Register, log in, chat with full **saved chat history** (pin conversations, rename inline, custom delete modal), responsive mobile drawer, update name (Profile), change password (Settings) | `/signup`, `/login`, `/chat`, header profile menu |
+| **Librarian** | Everything students can do, plus the **Library page**: add, edit, and delete books; toggle availability; manage physical copy counts; link courses; filter catalog; view stats; import CSVs; and run "Update AI index" | Header menu → Manage books → `/library` |
+| **Admin** | Everything librarians can do, plus **User management**: view all user accounts, create librarian or admin profiles, update roles, toggle active status, and trigger password resets | Header menu → Manage users → `/admin` |
 
-**Backend API** (all under `http://localhost:8000`, try them at `/docs`):
+### Backend API Map (`http://localhost:8000`, interactive Swagger at `/docs`)
 
-| Prefix | Routes | Who |
+| Route Prefix | Endpoints | Access Level |
 | --- | --- | --- |
-| `/api/auth` | `POST /login`, `POST /register`, `GET /me`, `PATCH /me`, `POST /change-password` | Anyone / logged in |
+| `/api/auth` | `POST /login`, `POST /register`, `GET /me`, `PATCH /me`, `POST /change-password` | Public / Authenticated |
 | `/api/books` | `GET /api/books?course=` | Public |
-| `/api/chat` | `POST /api/chat` (the RAG chat; also saves the question and reply when the user is logged in) | Public (saved only if logged in) |
-| `/api/conversations` | `GET` (my saved chats, newest first), `GET /{id}/messages` (oldest first), `DELETE /{id}` | Logged in |
+| `/api/chat` | `POST /api/chat` (handles RAG search and model generation; saves conversation when logged in) | Public (saved if authenticated) |
+| `/api/conversations` | `GET` (fetch saved chats), `GET /{id}/messages` (fetch chat history), `PATCH /{id}` (rename title), `DELETE /{id}` | Authenticated |
 | `/api/admin` | `GET` and `POST /users`, `PATCH /users/{id}/role`, `PATCH /users/{id}/status`, `POST /users/{id}/reset-password` | Admin |
-| `/api/library` | Books: `GET`, `POST`, `PATCH`, `DELETE` and `POST /books/import` (CSV). Courses: `GET`, `POST`, `PATCH`, `DELETE`. `POST /ai-index` | Librarian, admin |
+| `/api/library` | Books: `GET`, `POST`, `PATCH`, `DELETE` and `POST /books/import` (CSV). Courses: `GET`, `POST`, `PATCH`, `DELETE`. `POST /ai-index` | Librarian & Admin |
 
-**How the important parts work:**
+---
 
-- **Passwords** are stored only as bcrypt hashes. Nobody can see a real password, so admins reset forgotten ones instead.
-- **Login tokens** are JWTs that last 24 hours. A 401 error logs the user out, and a 403 means the wrong role.
-- **Saved chats (backend):** `POST /api/chat` uses `get_optional_user`, so guests still get answers but nothing is stored. For a logged-in user it calls `save_exchange()`, which creates the conversation on the first message (title = first 60 characters) and saves the question and the reply. It sends back `conversation_id`. Every conversation query also checks the owner, so a user can't open someone else's chat (404).
-- **Saved chats (frontend, `Chat.jsx`):** when a logged-in user opens the page, the sidebar list loads from `GET /api/conversations` (messages are not included, to keep it small). Clicking a chat fetches its messages once (`loaded` flag) and the input stays disabled until they arrive. A new chat first gets a temporary `Date.now()` id on screen, which is swapped for the real `conversation_id` as soon as the first reply comes back. The trash icon deletes a chat (browser confirm first). Guests skip all of this.
-- **`authFetch` and 204:** a successful delete returns 204 with no body, so `authFetch` returns `null` for 204 before it tries to read JSON.
-- **The "Needs AI update" badge** shows on new books, and on books whose AI-relevant fields changed (title, author, publisher, edition, call number, format, courses). Availability, copies and description don't trigger it. "Update AI index" embeds only the books with the badge.
-- **CSV import** uses the same columns as the holdings CSV, plus optional DESCRIPTION and COPIES. It skips books that already exist (same title and edition), creates new courses, and is all or nothing: one bad row means nothing is saved.
-- **Retrieval evaluation:** P@5 0.70 and R@5 0.82 on a 25-query golden set (`backend/evaluation/`).
+## Under the hood (How the tricky stuff works)
 
-## Project structure
+- **Authentication & Security:** Passwords are saved strictly as bcrypt hashes. Login returns a signed JWT valid for 24 hours. A 401 response forces a client-side logout, and a 403 indicates insufficient role privileges.
+- **Saved Chat Lifecycle:** `POST /api/chat` uses `get_optional_user`. If a guest chats, responses stream back but nothing hits the database. If a logged-in user chats, `save_exchange()` creates a conversation on the first prompt (defaulting the title to the first 60 characters) and records the message pair, returning the generated `conversation_id`. Every conversation endpoint strictly verifies owner user IDs to prevent users from accessing each other's chats.
+- **Frontend Conversation Handling (`Sidebar.jsx` & `Chat.jsx`):** On page load, `Sidebar.jsx` fetches `GET /api/conversations` (metadata only, excluding message bodies to save bandwidth). When a user clicks a chat, its messages are fetched on demand via `GET /api/conversations/{id}/messages` and cached with a `loaded: true` flag. Starting a new chat assigns a temporary `Date.now()` ID on screen, which is seamlessly swapped for the real DB ID once the first response returns.
+- **"Needs AI update" dirty tracking:** Books have an embedding vector (`vector(768)`). When a book is created or its search-critical fields change (title, author, publisher, edition, call number, format, or assigned courses), its embedding is cleared or flagged. Clicking **Update AI index** queries only books missing embeddings and vectors them in batch without re-embedding the entire catalog.
+- **CSV batch importing:** The importer maps to `database/BSCS_Holdings_Cleaned.csv` columns, plus optional `DESCRIPTION` and `COPIES`. It detects existing books (matching title + edition), generates course codes automatically, and wraps the entire process in a single database transaction: if any row contains bad data, the entire batch rolls back with line-by-line validation errors.
+- **Retrieval accuracy benchmark:** Our baseline evaluation against the 25-query golden set (`backend/evaluation/golden_dataset.csv`) achieved **Precision@5: 0.70** and **Recall@5: 0.82**.
 
-The backend is grouped by layer; the frontend is grouped by role (reorganized on Oct 18).
+---
+
+## Current project structure
 
 ```
 Libraria/
-├─ docker-compose.yml            PostgreSQL + pgvector
+├─ docker-compose.yml          PostgreSQL 17 + pgvector service
 ├─ database/
-│  ├─ schema.sql                 all tables (users, courses, books + copies, book_courses, conversations, messages)
-│  ├─ import_books.sql           loads + cleans the holdings CSV
-│  └─ BSCS_Holdings_Cleaned.csv
+│  ├─ schema.sql                Database tables (users, courses, books, copies, book_courses, conversations, messages)
+│  ├─ import_books.sql          CSV cleanup & staging script
+│  └─ BSCS_Holdings_Cleaned.csv Cleaned BSCS holdings dataset
 ├─ backend/app/
-│  ├─ main.py                    starts the API, registers the routers
-│  ├─ core/config.py             reads .env (DATABASE_URL, SECRET_KEY, Ollama)
-│  ├─ db/                        session.py (get_db), models.py (User, Book, Course, Conversation, Message)
-│  ├─ schemas/                   user.py, book.py, chat.py, conversation.py
-│  ├─ repositories/              user.py, book.py, course.py, conversation.py
-│  ├─ services/                  auth, admin, library, book, chat, conversation, llm, prompts
-│  ├─ api/                       deps.py (get_current_user, get_optional_user, require_roles), routes/
-│  └─ commands/                  create_admin, embed_books, evaluate_retrieval
+│  ├─ main.py                   FastAPI initialization & router bindings
+│  ├─ core/config.py            Settings & environment variables (DATABASE_URL, SECRET_KEY, Ollama)
+│  ├─ db/                       Database session (get_db) & SQLAlchemy models (models.py)
+│  ├─ schemas/                  Pydantic schemas (user.py, book.py, chat.py, conversation.py)
+│  ├─ repositories/             Direct database queries (user.py, book.py, course.py, conversation.py)
+│  ├─ services/                 Business logic (auth, admin, library, book, chat, conversation, llm, prompts)
+│  ├─ api/                      Dependencies (get_current_user, get_optional_user, require_roles) & route modules
+│  └─ commands/                 Management tasks (create_admin, embed_books, evaluate_retrieval, evaluate_ragas)
 └─ frontend/libraria-app/src/
-   ├─ App.jsx                    routes + role checks
-   ├─ context/AuthContext.jsx    login state, authFetch (token + 204 handling), profile + password
-   ├─ pages/auth/                LoginPage, SignUpPage
-   ├─ pages/admin/               AdminUsersPage
-   ├─ pages/librarian/           LibraryPage
-   ├─ components/chat/           Chat (sidebar with saved chats), ChatMessage, BookSearchPanel (search books by title, right side)
-   ├─ components/account/        AccountModal (Profile + Settings), LoginModal
-   └─ components/librarian/      BookForm, CoursesPanel
+   ├─ App.jsx                   Main app routing & protected route wrappers
+   ├─ context/AuthContext.jsx   Global auth provider, authFetch helper, profile/password handlers
+   ├─ styles/backgrounds.css    Radial dot grid background rules
+   ├─ pages/auth/               LoginPage, SignUpPage
+   ├─ pages/admin/              AdminUsersPage (staff management)
+   ├─ pages/librarian/          LibraryPage (catalog & course manager)
+   ├─ components/chat/          Chat (main viewport), Sidebar (desktop rail & mobile drawer), ChatMessage, BookSearchPanel
+   ├─ components/account/       AccountModal (Profile & Settings tabs), LoginModal
+   └─ components/librarian/     BookForm, CoursesPanel
 ```
 
-## What's lacking and what to improve
+---
 
-Saved chats are now built (Oct 27). Tick these off as you go.
+## What's done vs. What's left (Sprint checklist)
 
-**High priority (features the handoff plan still needs)**
+### Completed:
+- [x] **Inline chat rename:** `PATCH /api/conversations/{id}` with inline editing in the sidebar.
+- [x] **Mobile-ready navigation:** Sidebar drawer sliding off-canvas with backdrop overlay on mobile screens (`< 768px`).
+- [x] **Custom delete confirmation modal:** Clean zero-blur modal instead of browser alerts.
+- [x] **Sidebar refactoring:** Modularized into `Sidebar.jsx`, cutting `Chat.jsx` size almost in half.
+- [x] **Pin chats to top:** Per-user pinned chat list stored in `localStorage`.
+- [x] **3B model leakage fix:** Tightened prompt templates to prevent smaller models from echoing instructions.
+- [x] **RAGAS evaluation pipeline:** Added `evaluate_ragas.py` script.
 
-- [ ] **Test saved chats end to end:** the code was written on Oct 27 and has not been checked off here yet. Test by hand: (1) log in, start a new chat, send two messages in a row (the second must not say "Chat not found"); (2) refresh, the chat is in the sidebar and opens with both messages; (3) send a follow-up in the reopened chat and check the AI still remembers it; (4) delete a chat, refresh, and it stays gone; (5) log in as a different user and confirm you don't see the first user's chats; (6) as a guest, check nothing is saved.
-- [ ] **"What students are asking" for librarians:** popular questions, and questions where no good book was found. This is no longer blocked, because chats are now saved.
-- [ ] **Send staff to their page after login:** librarians to `/library`, admins to `/admin`. Today everyone lands on `/chat`.
-- [ ] **Evaluation layers 2–4:** only layer 1 (retrieval: P@5 0.70, R@5 0.82) is done, and the 25-query golden set still needs a group review.
+### High priority backlog:
+- [ ] **End-to-end testing for saved chats:** Manually run through multi-user edge cases (login, consecutive messages, refresh reload, delete persistence, guest isolation).
+- [ ] **"What students are asking" librarian dashboard:** Group common query topics and surface questions where zero relevant books were retrieved so librarians know what holdings to purchase.
+- [ ] **Smart post-login redirection:** Send librarians directly to `/library` and admins to `/admin` instead of defaulting everyone to `/chat`.
+- [ ] **Golden set review & RAGAS benchmarking:** Review the 25-query golden dataset with advisors and generate benchmark metrics with `evaluate_ragas.py`.
 
-**Medium priority (saved chats polish)**
+### Medium priority (AI quality & code health):
+- [ ] **Include book descriptions in search text:** Add `description` to `book_to_text` (in `services/book.py`) and re-embed to improve semantic search match rates.
+- [ ] **Availability-aware context:** Include physical copy availability in the LLM prompt so it warns students if a title is currently checked out.
+- [ ] **Progress feedback on "Update AI index":** Add progress indicators or WebSocket updates for large embedding batches.
+- [ ] **Automated test suite:** Add `pytest` test suites covering auth, library, and conversation routes.
 
-- [ ] **No rename:** a chat's title is always the first 60 characters of its first message.
-- [ ] **Sidebar is hidden on small screens** (`hidden md:flex`), so chat history can't be reached on a phone-sized window.
-- [ ] **Silent failures:** if loading the chat list, opening a chat or deleting one fails, the error only shows in the browser console.
-- [ ] **The AI only remembers the last 6 messages** of a chat (`MAX_HISTORY`), even in a long saved chat.
-- [ ] **The books the AI used aren't saved:** only the question and the reply are stored, so a reopened chat doesn't show the book list again.
+### Security notes before deploying outside localhost:
+- [ ] JWT tokens are stored in `localStorage` (24-hour expiration, no refresh token rotation).
+- [ ] Rate limiting is not yet enabled on the login or chat endpoints.
+- [ ] CORS currently allows `http://localhost:5173`, and the API base URL is hardcoded in frontend service calls.
+- [ ] Always generate an independent, cryptographically secure `SECRET_KEY` per machine and keep `.env` excluded from source control.
 
-**Medium priority (AI quality)**
+---
 
-- [ ] **Descriptions aren't used by the AI:** `book_to_text` (in `services/book.py`) leaves out `description`, so filling in descriptions doesn't improve search yet. Adding it means re-embedding all books and re-running the evaluation.
-- [ ] **Availability isn't in the AI text** either, so the chatbot may recommend a book marked "Not available" (inferred from `book_to_text`; not tested in chat).
-- [ ] **"Update AI index" runs inside one request:** with many books it can take a while, with no progress bar.
+## Where to pick up next
 
-**Medium priority (code health)**
-
-- [ ] **No automated tests in the repo:** the features were tested by hand and in throwaway scripts, so add `pytest` tests for auth, admin, library and conversations.
-- [ ] **`updated_at` on books is never updated** by the app (the model has no `onupdate`).
-- [ ] **Course codes:** the database allows the same code with two different names (`UNIQUE (code, name)`), but the app treats the code as unique.
-- [ ] **CSV import:** if the same book appears twice in one file with different courses, only the first row's courses are kept. Excel files must be saved as **CSV UTF-8**, or letters like ñ get garbled.
-- [ ] **Error messages:** FastAPI validation errors (422) show as "Something went wrong" because `authFetch` only shows text details.
-- [ ] **Leftover starter files:** `App.css`, `assets/react.svg` and `assets/vite.svg` are unused.
-
-**Before deploying anywhere other than a laptop (security)**
-
-- [ ] The login token is kept in `localStorage`, which a cross-site scripting bug could read. It lasts 24 hours, with no refresh.
-- [ ] There's no limit on login attempts, and no "forgot password" email (an admin resets it instead).
-- [ ] CORS only allows `http://localhost:5173`, and `API_URL` is hard-coded in `AuthContext.jsx` (and in the guest chat request in `Chat.jsx`). Both need settings for a real server.
-- [ ] Use a long random `SECRET_KEY` on every machine, and never commit `.env`.
-
-## Suggested next steps
-
-Test saved chats first, then build the librarian insights on top of them.
-
-1. Run the saved-chats test list above, then push the work to GitHub (`git add .`, `git commit`, `git push`) and have a teammate set it up fresh from the README to prove it works on another laptop.
-2. Add "What students are asking" to the Library page.
-3. Send librarians and admins to their own page after login.
-4. Add `description` to `book_to_text`, re-embed, and re-run the evaluation to compare P@5 and R@5.
-5. Finish evaluation layers 2–4 with the group.
-6. Add `pytest` tests for the auth, admin, library and conversation routes.
-7. Polish saved chats: rename, a visible error message, and a mobile-friendly sidebar.
-
-**How to run and test:** the [README](README.md) has the full setup. Every time, you need 3 things running: Docker (database), `uvicorn app.main:app --reload --port 8000` in `backend` (with the venv on), and `npm run dev` in `frontend/libraria-app`, with Ollama open. Then open `http://localhost:5173`. Make the first admin with `python -m app.commands.create_admin`, and test the API at `http://localhost:8000/docs`.
+1. **Commit current progress to GitHub:**
+   ```powershell
+   git add .
+   git commit -m "Update docs, modularize sidebar, add mobile drawer, and refine prompt guardrails"
+   git push
+   ```
+2. **Build the "What students are asking" widget:** Query the `messages` table for recent queries and unfulfilled searches, and display them in `LibraryPage.jsx`.
+3. **Set up login redirects:** Update `LoginPage.jsx` to navigate to `/library` for librarians and `/admin` for admins based on `user.role`.
+4. **Run RAGAS evaluation:** Execute `python -m app.commands.evaluate_ragas` to collect faithfulness and context recall metrics.
+5. **Write `pytest` suites:** Add backend unit and route tests under `backend/tests/`.

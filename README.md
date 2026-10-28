@@ -1,118 +1,114 @@
 # LIBRARIA
 
-**AI Assistant for Book Retrieval and Enhanced Book Recommendation for CCS Students**
+**AI Assistant for Book Retrieval and Course Recommendations for CCS Students**
 
-Libraria is a chatbot that recommends books from the CCS library. It uses **RAG
-(Retrieval-Augmented Generation)**: it first searches the library database for
-matching books, then lets a local AI write a reply using **only** those books.
+Libraria is an offline, full-stack RAG (Retrieval-Augmented Generation) chatbot built for the College of Computer Studies (CCS) library. Instead of letting an AI hallucinate book titles, Libraria first searches our local library database using vector similarity search (pgvector), pulls the most relevant holdings, and passes only those real books to a local LLM to draft a helpful response.
 
-| Part | Technology |
+No paid APIs, no external subscriptions, and everything runs locally on a laptop.
+
+| Layer | Stack |
 |---|---|
-| Frontend | React (Vite) + Tailwind CSS, React Router, Headless UI |
-| Backend | Python + FastAPI, SQLAlchemy, bcrypt (passwords), PyJWT (login tokens) |
-| Database | PostgreSQL + pgvector (runs in Docker) |
-| AI | Ollama (runs offline on your laptop): `nomic-embed-text` + `llama3.2:3b` or `qwen2.5:7b` |
+| **Frontend** | React (Vite) + Tailwind CSS, React Router v7, Headless UI, Heroicons, Poppins font |
+| **Backend** | Python 3.10+ with FastAPI, SQLAlchemy 2.0, bcrypt, PyJWT |
+| **Database** | PostgreSQL 17 + pgvector running inside Docker |
+| **AI / LLM** | Ollama (offline): `nomic-embed-text` (768-dim embeddings) + `llama3.2:3b` or `qwen2.5:3b` (fast chat) / `qwen2.5:7b` |
 
 ---
 
-> **Project status and to-do list:** see [HANDOFF.md](HANDOFF.md) (what's done, what's lacking, next steps).
+> **Team handoff & roadmap:** Looking for current progress, architecture notes, and next priorities? Check out [**HANDOFF.md**](HANDOFF.md).
 
 ---
 
-## What it can do (by role)
+## Who gets to do what (Role Breakdown)
 
-| Role | Can do | Where |
+| Role | What they can do | Where |
 |---|---|---|
-| **Guest** | Chat with the book assistant without an account (nothing is saved) | Login page → **Continue as Guest** |
-| **Student** (`user`) | Sign up, log in, chat, **saved chats** (your past chats stay in the sidebar; reopen or delete them), change their name (**Profile**) and password (**Settings**) | Click your name at the bottom of the sidebar |
-| **Librarian** | Everything a student can + the **Library page**: add / edit / delete books, availability, number of copies, courses, search and filters, stats, **Import CSV**, **Update AI index** | Menu → **Manage books** (`/library`) |
-| **Admin** | Everything a librarian can + **Manage users**: create librarian/admin accounts, change roles, activate/deactivate, reset passwords | Menu → **Manage users** (`/admin`) |
+| **Guest** | Chat with the assistant without an account (sessions aren't saved; confirms before clearing chats) | Login page → **Continue as Guest** |
+| **Student** (`user`) | Register, log in, chat with full **saved chat history** (pin favourites, inline rename, delete), mobile off-canvas drawer, update **Profile** and change password in **Settings** | Sidebar & header profile menu |
+| **Librarian** | Everything students can do, plus access to the **Library management dashboard**: add/edit/delete books, toggle availability, manage copies, link courses, import CSV batches, and trigger **Update AI index** | Menu → **Manage books** (`/library`) |
+| **Admin** | Everything librarians can do, plus user administration: create staff accounts, toggle roles, activate/deactivate users, and trigger password resets | Menu → **Manage users** (`/admin`) |
 
-Students sign up themselves (always as a normal `user`). Librarian and admin accounts are
-made by an admin.
+*Note: Students sign up through the standard register page. Librarian and Admin accounts are provisioned by an Admin.*
 
 ---
 
-## 1. Install these first (one time only)
+## 1. Prerequisites (Install once)
 
-| Tool | Download | Check it works (in PowerShell) |
+Before starting, make sure you have these tools installed on your machine:
+
+| Tool | Download Link | Quick Check (PowerShell) |
 |---|---|---|
-| Git | https://git-scm.com | `git --version` |
-| Docker Desktop | https://www.docker.com/products/docker-desktop | `docker --version` |
-| Python 3.10+ | https://www.python.org (tick **"Add Python to PATH"**) | `python --version` |
-| Node.js (LTS) | https://nodejs.org | `node --version` |
-| Ollama | https://ollama.com | `ollama --version` |
+| **Git** | https://git-scm.com | `git --version` |
+| **Docker Desktop** | https://www.docker.com/products/docker-desktop | `docker --version` |
+| **Python 3.10+** | https://www.python.org (make sure to check **"Add Python to PATH"**) | `python --version` |
+| **Node.js (LTS)** | https://nodejs.org | `node --version` |
+| **Ollama** | https://ollama.com | `ollama --version` |
 
-> **Windows 11 note:** if Python later shows `DLL load failed ... An Application Control
-> policy has blocked this file`, turn off **Smart App Control** in
-> Windows Security → App & browser control. See [Troubleshooting](#troubleshooting).
+> **Windows 11 note:** If Python throws a `DLL load failed ... Application Control policy has blocked this file` error, Smart App Control is blocking virtualenv packages. Turn it off in **Windows Security → App & browser control**.
 
 ---
 
-## 2. Get the code
+## 2. Clone the repo
 
-```
+```powershell
 git clone https://github.com/my-waist-is-shrinking/Libraria-Chatbot.git
 cd Libraria-Chatbot
 ```
 
-(The folder name is whatever `git clone` made. The steps below call it the `Libraria` folder.)
+*(From here on, this directory is referred to as the root `Libraria` folder).*
 
 ---
 
-## 3. Start the database
+## 3. Spin up the database (Docker)
 
-1. Open **Docker Desktop** and wait for **"Engine running"** (bottom-left).
-2. In the `Libraria` folder:
+1. Open **Docker Desktop** and make sure the engine is running.
+2. In the root `Libraria` folder, start PostgreSQL:
 
-```
+```powershell
 docker compose up -d
 ```
 
-This creates the PostgreSQL database with all tables (from `database/schema.sql`).
+This runs PostgreSQL 17 with the pgvector extension and automatically initializes tables from `database/schema.sql`.
 
-### Load the books (one time only)
+### Seed the book catalog (one-time setup)
 
-Still in the `Libraria` folder, run these **one at a time**:
+In the root `Libraria` folder, run these commands to import the cleaned CCS holdings:
 
-```
+```powershell
 docker cp database/BSCS_Holdings_Cleaned.csv libraria-db:/tmp/holdings.csv
 docker cp database/import_books.sql libraria-db:/tmp/import_books.sql
 docker exec libraria-db psql -U libraria -d libraria -f /tmp/import_books.sql
 ```
 
-The last command prints the number of courses and books. You should see **30 courses**
-and **178 books**.
+The script will clean duplicates, assign courses, and print the loaded totals. You should see **30 courses** and **178 books**.
 
-### Already had the database from before? (update it once)
+### Upgrading an older local database?
+If your local DB container was initialized before the multi-copy feature was added, run this once:
 
-`schema.sql` only runs the **first** time the database is created. If your database is
-older than the **copies** feature, add the new column once:
-
-```
+```powershell
 docker exec -it libraria-db psql -U libraria -d libraria -c "ALTER TABLE books ADD COLUMN copies INT NOT NULL DEFAULT 1 CHECK (copies >= 0);"
 ```
 
-It prints `ALTER TABLE`. If it says the column **already exists**, you're fine.
-
 ---
 
-## 4. Set up the AI models (one time only)
+## 4. Pull the local AI models (Ollama)
 
-Make sure the Ollama app is running (llama icon near the clock), then:
+With Ollama running in your system tray, pull the embedding model and our default chat model:
 
-```
+```powershell
 ollama pull nomic-embed-text
 ollama pull llama3.2:3b
 ```
 
-If your laptop has **16 GB RAM or more**, also run `ollama pull qwen2.5:7b` (smarter, but slower).
+*Have 16 GB+ RAM?* You can also pull `qwen2.5:3b` or `qwen2.5:7b` if you want higher reasoning capacity.
 
 ---
 
-## 5. Set up the backend (one time only)
+## 5. Backend setup (FastAPI)
 
-```
+Open a PowerShell window in `backend`:
+
+```powershell
 cd backend
 python -m venv venv
 venv\Scripts\activate
@@ -120,195 +116,178 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-**Make your own secret key** (it signs the login tokens). Run this, copy the long text it prints:
+Generate a random secret key for signing JWT login tokens:
 
-```
+```powershell
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Open `backend\.env` and paste it after `SECRET_KEY=` (replace `change-me...`). Save the file.
+Open `backend\.env` and paste that generated string into `SECRET_KEY=`.
 
-If you pulled `qwen2.5:7b`, also set `CHAT_MODEL=qwen2.5:7b` in `backend\.env`.
-
-Then turn every book into an AI embedding (takes about a minute):
-
+If you prefer using Qwen or Llama, verify your `CHAT_MODEL` entry:
+```env
+CHAT_MODEL=llama3.2:3b
 ```
+
+Generate vector embeddings for all books in the database (takes ~1 minute):
+
+```powershell
 python -m app.commands.embed_books
 ```
 
-It should end with **"All books embedded!"**.
+You should see it finish with **"All books embedded!"**.
 
-### Create the first admin account (one time only)
+### Create your first Admin account
 
-Still in `backend` with `(venv)` on:
+With `(venv)` active in `backend`:
 
-```
+```powershell
 python -m app.commands.create_admin
 ```
 
-Type a name, email and password (the password is hidden while you type, that's normal),
-then press **Enter** at `Role [admin]`. Log in with this account, then use
-**Manage users** to make librarian accounts.
+Follow the prompts for name, email, and password, and press Enter to accept `admin`. You can use this account to log in and promote teammates to librarians.
 
 ---
 
-## 6. Set up the frontend (one time only)
+## 6. Frontend setup (React + Vite)
 
-Open a **second** PowerShell window:
+Open a second PowerShell window:
 
-```
-cd Libraria\frontend\libraria-app
+```powershell
+cd frontend\libraria-app
 npm install
 ```
 
 ---
 
-## 7. Run Libraria (every time)
+## 7. Running the project (Everyday dev workflow)
 
-You need **3 things running** (plus the Ollama app):
+You'll need these 3 services running side by side:
 
-| # | What | Where | Command |
-|---|---|---|---|
-| 1 | Database | Docker Desktop open | (starts by itself; if not: `docker compose up -d` in `Libraria`) |
-| 2 | Backend | PowerShell in `Libraria\backend` | `venv\Scripts\activate` then `uvicorn app.main:app --reload --port 8000` |
-| 3 | Frontend | PowerShell in `Libraria\frontend\libraria-app` | `npm run dev` |
+| Service | Location | Terminal Command |
+|---|---|---|
+| **1. Database** | Docker Desktop | Runs in background (`docker compose up -d` if stopped) |
+| **2. Backend** | `Libraria\backend` | `venv\Scripts\activate`<br>`uvicorn app.main:app --reload --port 8000` |
+| **3. Frontend** | `Libraria\frontend\libraria-app` | `npm run dev` |
 
-Then open **http://localhost:5173**.
+Then hit **http://localhost:5173** in your browser.
 
-- **Continue as Guest** → chat without an account (not saved).
-- **Sign up** → make a student account.
-- **Log in** → students go to the chat. Your saved chats show in the left sidebar: click one to
-  reopen it, or click the trash icon to delete it. Click your name (bottom-left) for Profile,
-  Settings, and (for staff) **Manage books** / **Manage users**.
-
-Useful pages:
-- http://localhost:8000/api/health → shows the server is running and which AI model it uses
-- http://localhost:8000/docs → test the API directly (log in with `POST /api/auth/login`,
-  copy the `access_token`, click **Authorize** and paste it)
+- **Check API status:** http://localhost:8000/api/health
+- **Interactive Swagger Docs:** http://localhost:8000/docs (Authorize using your JWT token from `/api/auth/login`)
 
 ---
 
-## 8. Librarian tips
+## 8. Librarian features & catalog management
 
-- **New or edited books** get a yellow **"Needs AI update"** badge. Press
-  **Update AI index** (Ollama must be running) so the chatbot can find them.
-- **Import CSV** uses the same columns as `database/BSCS_Holdings_Cleaned.csv`:
-  `PROFESSIONAL SUBJECTS, CALL NUMBER, AUTHOR, TITLE, EDITION, PUBLISHER`, plus optional
-  `DESCRIPTION` and `COPIES`. Only `TITLE` is required.
-  - Courses look like `CC-COMPROG11 - Computer Programming 1`; several courses are split with ` / `.
-    New course codes are created automatically.
-  - `E-Book` in `CALL NUMBER` makes the book an e-book.
-  - Books that already exist (same title + edition) are skipped.
-  - If any row has a problem, **nothing** is imported and the page lists the rows to fix.
-  - In Excel, save with **Save As → CSV UTF-8** so letters like ñ stay correct.
+- **Automatic AI sync flags:** When a book is added or its metadata changes, it gets flagged with a yellow **"Needs AI update"** badge. Clicking **Update AI index** re-embeds only the dirty books.
+- **CSV Batch Import:** You can bulk-upload records using the CSV layout in `database/BSCS_Holdings_Cleaned.csv` (`PROFESSIONAL SUBJECTS, CALL NUMBER, AUTHOR, TITLE, EDITION, PUBLISHER, DESCRIPTION, COPIES`).
+  - Titles are matched so duplicate editions are skipped.
+  - New course codes are auto-created on the fly.
+  - Transactions are all-or-nothing: if row 25 is corrupted, the whole batch safely rolls back with a detailed line-error list.
+  - Save spreadsheet files as **CSV UTF-8** in Excel to preserve special characters.
 
 ---
 
-## 9. Evaluation (accuracy test)
+## 9. Testing retrieval accuracy
 
-Checks how well the book search works, using the answer key in
-`backend/evaluation/golden_dataset.csv`:
+To benchmark how well our vector similarity search locates the right books for student questions, we test against the ground-truth answer key in `backend/evaluation/golden_dataset.csv`:
 
-```
+```powershell
 cd backend
 venv\Scripts\activate
 python -m app.commands.evaluate_retrieval
 ```
 
-It prints **Precision@5, Recall@5, Hit Rate@5** and the average search time, and saves
-details to `backend/evaluation/retrieval_results.csv`.
+This outputs **Precision@5, Recall@5, Hit Rate@5**, and execution latency, saving a breakdown to `backend/evaluation/retrieval_results.csv`.
+
+To run multi-layer RAG evaluation (faithfulness and answer relevancy) using RAGAS:
+```powershell
+python -m app.commands.evaluate_ragas
+```
 
 ---
 
-## Project structure
+## 10. Project architecture & code map
+
+We follow a clean 4-tier separation: **Routes → Services → Repositories → DB Models**. Routes handle request validation, services enforce business logic, repositories execute database queries, and routes never talk to PostgreSQL directly.
 
 ```
 Libraria/
-├── docker-compose.yml              ← runs PostgreSQL + pgvector
+├── docker-compose.yml              ← PostgreSQL 17 + pgvector container
 ├── database/
-│   ├── schema.sql                  ← creates the tables
-│   ├── import_books.sql            ← loads + cleans the book CSV
+│   ├── schema.sql                  ← Complete table schemas
+│   ├── import_books.sql            ← CSV cleaning & loading logic
 │   └── BSCS_Holdings_Cleaned.csv
-├── backend/                        ← FastAPI
-│   ├── .env.example                ← copy to .env (never upload .env)
+├── backend/                        ← FastAPI server
+│   ├── .env.example                ← Template configuration (never commit .env)
 │   ├── requirements.txt
-│   ├── evaluation/                 ← answer key + results
+│   ├── evaluation/                 ← Test dataset & CSV evaluation logs
 │   └── app/
-│       ├── main.py                 ← starts the API, registers the routes
-│       ├── core/config.py          ← reads .env
-│       ├── db/                     ← database connection (get_db) + tables (models.py)
-│       ├── schemas/                ← what the API sends/receives (user, book, chat, conversation)
-│       ├── repositories/           ← the only code that talks to the database (user, book, course, conversation)
-│       ├── services/               ← logic: auth, admin, library, RAG chat, saved chats, prompts, Ollama
-│       ├── api/deps.py             ← "who is logged in?" + role checks (guests allowed where needed)
-│       ├── api/routes/             ← URLs: /api/auth, /api/admin, /api/library, /api/books, /api/chat, /api/conversations
-│       └── commands/               ← scripts (create_admin, embed_books, evaluate_retrieval)
-└── frontend/libraria-app/src/      ← React app
-    ├── App.jsx                     ← pages + who can open them
-    ├── context/AuthContext.jsx     ← login state, authFetch (sends the token)
+│       ├── main.py                 ← FastAPI entry point & CORS configuration
+│       ├── core/config.py          ← Pydantic settings & env loader
+│       ├── db/                     ← DB engine, SessionLocal, and models.py
+│       ├── schemas/                ← Pydantic request & response schemas
+│       ├── repositories/           ← Raw SQL / SQLAlchemy queries
+│       ├── services/               ← Business rules: auth, admin, chat RAG, Ollama client
+│       ├── api/deps.py             ← Auth guards & dependency injection
+│       ├── api/routes/             ← Route controllers (/auth, /chat, /library, /admin, etc.)
+│       └── commands/               ← CLI tasks (create_admin, embed_books, evaluate_*)
+└── frontend/libraria-app/src/      ← React + Vite frontend
+    ├── App.jsx                     ← Route provider & role-based route wrappers
+    ├── context/AuthContext.jsx     ← Auth state, token persistence & authFetch helper
+    ├── styles/backgrounds.css      ← Custom pattern rules (welcome screen radial dot grid)
     ├── pages/
     │   ├── auth/                   ← LoginPage, SignUpPage
-    │   ├── admin/                  ← AdminUsersPage (Manage users)
-    │   └── librarian/              ← LibraryPage (Manage books)
+    │   ├── admin/                  ← AdminUsersPage (account provisioning)
+    │   └── librarian/              ← LibraryPage (catalog manager)
     └── components/
-        ├── chat/                   ← Chat (with the saved-chats sidebar), ChatMessage, BookSearchPanel
-        ├── account/                ← AccountModal (Profile + Settings), LoginModal
+        ├── chat/                   ← Chat, Sidebar (drawer & rail), ChatMessage, BookSearchPanel
+        ├── account/                ← AccountModal (Profile/Settings), LoginModal
         └── librarian/              ← BookForm, CoursesPanel
 ```
 
-Code rule (from the template we follow): **routes → services → repositories → database**.
-Routes never talk to the database directly.
+### Core API Endpoints
 
-### Main API routes
-
-| Prefix | What | Who |
+| Prefix | Endpoints | Access |
 |---|---|---|
-| `/api/auth` | `login`, `register`, `me` (GET / PATCH), `change-password` | anyone / logged in |
-| `/api/chat`, `/api/books` | the chatbot (saves the chat when you're logged in) and the public book list | anyone |
-| `/api/conversations` | my saved chats: list, load one chat's messages, delete | logged in |
-| `/api/admin/users` | list, create, change role, activate/deactivate, reset password | admin |
-| `/api/library` | books (CRUD + `books/import`), courses (CRUD), `ai-index` | librarian + admin |
+| `/api/auth` | `login`, `register`, `me` (GET/PATCH), `change-password` | Public / Logged in |
+| `/api/chat`, `/api/books` | Chat streaming & RAG exchange; public catalog search | Public (saved if logged in) |
+| `/api/conversations` | Conversation history: list, read messages, rename title, delete | Logged in |
+| `/api/admin/users` | List accounts, create staff, update roles, toggle status, reset password | Admin |
+| `/api/library` | Book CRUD + CSV import, course CRUD, AI re-index trigger | Librarian & Admin |
 
 ---
 
-## Working together with Git
+## 11. Team Git Workflow
 
-**Before you start working:**
-```
+Before starting a feature:
+```powershell
 git pull
 ```
 
-**After you finish something:**
-```
+When you're ready to share your changes:
+```powershell
 git add .
-git commit -m "Short description of what you changed"
+git commit -m "Brief description of what you changed"
 git push
 ```
 
-If `git push` is rejected, run `git pull` first, then push again.
-
-**Never upload:** `.env`, `venv/`, `node_modules/` (the `.gitignore` file already blocks them).
-
-After a `git pull`, if `requirements.txt` changed run `pip install -r requirements.txt`
-(in `backend`, venv on), and if `package.json` changed run `npm install` (in `frontend/libraria-app`).
+- **Protected files:** Never commit `.env`, `venv/`, or `node_modules/` (`.gitignore` handles this automatically).
+- If backend dependencies changed after pulling: run `pip install -r requirements.txt` (inside `venv`).
+- If frontend packages changed: run `npm install` inside `frontend/libraria-app`.
 
 ---
 
-## Troubleshooting
+## 12. Common hiccups & quick fixes
 
-| Problem | Fix |
+| What went wrong | How to fix it |
 |---|---|
-| `No module named ...` | You forgot `venv\Scripts\activate` (the prompt must start with `(venv)`), or run `pip install -r requirements.txt` again. |
-| `secret_key Field required` | Your `backend\.env` has no `SECRET_KEY=` line. Add it (step 5) and restart uvicorn. |
-| `column books.copies does not exist` | Your database is older than the copies feature. Run the `ALTER TABLE` command in step 3. |
-| `failed to connect to the docker API` | Open Docker Desktop and wait for "Engine running". |
-| `password authentication failed for user "libraria"` | Another PostgreSQL is installed on your laptop and using port 5432. Uninstall it, or change `"5432:5432"` to `"5433:5432"` in `docker-compose.yml` and `5432` to `5433` in `backend\.env`. |
-| `DLL load failed ... Application Control policy has blocked this file` | Windows Smart App Control is blocking Python packages. Turn it off in Windows Security → App & browser control. |
-| `running scripts is disabled on this system` | Run once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| Chat says "Sorry, there was an error..." | Check that the backend (uvicorn) and Ollama are running, and look at the uvicorn window for the red error. |
-| Saved chats don't show in the sidebar after logging in | Make sure the backend is running, then open the browser's Network tab (F12) and look at the `conversations` request. A 401 means log in again. "No chats yet" is normal for an account that hasn't sent a message. |
-| Page turns white after editing `Chat.jsx` | Press F12 → Console and read the first red error. It is usually a missing import (like `TrashIcon`) or a duplicate import line. |
-| "Couldn't reach the AI" on **Update AI index** | Open the Ollama app, then press the button again. |
-| "Your session expired. Please log in again." | Login tokens last 24 hours. Just log in again. |
-| Changed `.env` but nothing changed | Restart uvicorn (`Ctrl+C`, then run it again). `--reload` does not watch `.env`. |
-| `(END)` appears and the terminal seems stuck | Press `q`. |
+| `No module named ...` | Virtual environment isn't active. Run `venv\Scripts\activate` (look for `(venv)` in your prompt) or run `pip install -r requirements.txt`. |
+| `secret_key Field required` | Your `backend\.env` is missing the `SECRET_KEY=` line. Generate one (Step 5) and restart Uvicorn. |
+| `column books.copies does not exist` | Your local DB was created with an old schema. Run the `ALTER TABLE` snippet in Step 3. |
+| `failed to connect to the docker API` | Docker Desktop isn't running yet. Start it and wait for the green indicator. |
+| `password authentication failed for user "libraria"` | Another PostgreSQL instance on your computer is already hogging port 5432. Stop it, or map `"5433:5432"` in `docker-compose.yml` and update `DATABASE_URL` in `.env`. |
+| `DLL load failed ... Application Control policy has blocked this file` | Windows Smart App Control blocked a Python binary. Disable it under Windows Security → App & browser control. |
+| Chat says *"Sorry, there was an error..."* | Check that both Uvicorn and the Ollama app are running. Look at the terminal running Uvicorn for the specific traceback. |
+| Saved chats don't load after logging in | Check your browser console (F12) and Network tab. A 401 error means your token expired; just log in again. |
+| Model seems sluggish on a laptop | Make sure you're using a 3B parameter model like `llama3.2:3b` or `qwen2.5:3b` in your `.env` instead of heavy 7B+ models. |
