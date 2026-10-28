@@ -50,7 +50,7 @@ const BookForm = ({ book, courses, onSave, onClose }) => {
 
     try {
       const savedUser = JSON.parse(localStorage.getItem('libraria-user') || '{}');
-      const response = await fetch('http://localhost:8000/api/library/upload-cover', {
+      const response = await fetch(`${API_URL}/api/library/upload-cover`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${savedUser.token}`,

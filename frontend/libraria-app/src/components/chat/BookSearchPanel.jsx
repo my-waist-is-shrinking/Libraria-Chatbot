@@ -14,7 +14,7 @@ import {
 const HERO_IMAGE_URL = '/lib-background.jpg';
 
 // Where the FastAPI backend runs
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const ITEMS_PER_PAGE = 6; // 6 cards per page (3 columns x 2 rows)
 
 // The 3 Academy 2-tone color themes (Peach-Orange, Lavender-Purple, Sky-Blue)

@@ -21,6 +21,8 @@ import {
   UserIcon,
 } from '@heroicons/react/20/solid';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const QUICK_PROMPTS = [
   'Recommend a Python programming book',
   'Books for Data Structures and Algorithms',
@@ -149,7 +151,7 @@ const Chat = () => {
         headers.Authorization = `Bearer ${user.token}`;
       }
 
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers,
         body: JSON.stringify(

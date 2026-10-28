@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 
 // Where the FastAPI backend runs
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const AuthContext = createContext(null);
 

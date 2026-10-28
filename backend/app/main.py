@@ -14,10 +14,10 @@ UPLOAD_DIR = Path("uploads/covers")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# Allow the React app (port 5173) to call this backend
+# Allow the React app (port 5173), Vercel, and ngrok to call this backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
