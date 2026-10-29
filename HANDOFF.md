@@ -4,9 +4,7 @@ _Last updated: October 29, 2026 · Maintainer: gio_
 
 ## What is Libraria? (Quick recap)
 
-Libraria is an offline, full-stack RAG (Retrieval-Augmented Generation) library assistant built specifically for our College of Computer Studies (CCS) students and faculty. Instead of connecting to cloud AI services or letting an LLM guess what books might exist, Libraria performs vector similarity searches across our actual physical holdings and local e-books using PostgreSQL + pgvector. It extracts matching catalog context and feeds only those verified titles to an offline Ollama model to generate grounded recommendations and conceptual explanations.
-
-Everything runs locally on a student laptop with zero API fees.
+----- to be updated
 
 | Layer | Stack |
 | --- | --- |
