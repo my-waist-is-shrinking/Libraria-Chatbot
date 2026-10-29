@@ -1,6 +1,6 @@
 # LIBRARIA
 
-**AI Assistant for Book Retrieval and Course Recommendations for CCS Students**
+**AI Assistant for Book Retrieval and Enhanced Book Recommendation for CCS Students**
 
 ----- to be updated
 
