@@ -2,9 +2,7 @@
 
 **AI Assistant for Book Retrieval and Course Recommendations for CCS Students**
 
-Libraria is an offline, full-stack RAG (Retrieval-Augmented Generation) chatbot built for the College of Computer Studies (CCS) library. Instead of letting an AI hallucinate book titles, Libraria first searches our local library database using vector similarity search (pgvector), pulls the most relevant holdings, and passes only those real books to a local LLM to draft a helpful response.
-
-No paid APIs, no external subscriptions, and everything runs locally on a laptop.
+----- to be updated
 
 | Layer | Stack |
 |---|---|
