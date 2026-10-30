@@ -1,6 +1,6 @@
 # LIBRARIA
 
-<h1 style="font-size: 5.0em;">///////////////// WIP - WORK IN PROGESS ////////////////// 
+<h1 style="font-size: 5.0em;"> WIP - WORK IN PROGESS
 
 
 **An AI Assisted Book Retrieval and Enhanced Book Recommendation for CCS Academic Library**
