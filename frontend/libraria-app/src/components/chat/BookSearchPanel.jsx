@@ -1,3 +1,4 @@
+import fallbackBooks from '../../data/fallbackBooks.json';
 import { useEffect, useState, useRef } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
@@ -172,7 +173,7 @@ const CourseRow = ({ course, index = 0, onClick }) => {
 };
 
 const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
-  const [allBooks, setAllBooks] = useState([]);       // all books loaded from backend
+  const [allBooks, setAllBooks] = useState(fallbackBooks);       // all books loaded from backend
   const [isLoading, setIsLoading] = useState(true);   // true while loading
   const [error, setError] = useState('');
 
@@ -195,7 +196,9 @@ const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
         setAllBooks(await response.json());
         setError('');
       } catch {
-        setError("Can't reach the server. Is the backend running?");
+         // Fallback to our bundled books if backend is sleeping
+        setAllBooks(fallbackBooks);
+        setError('');
       } finally {
         setIsLoading(false);
       }
