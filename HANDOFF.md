@@ -2,8 +2,9 @@
 
 _Last updated: October 29, 2026 · Maintainer: gio_
 
-<h1 style="font-size: 5.0em;">///////////////// WIP - WORK IN PROGESS ////////////////// 
-
+<h1> 🛠️ WIP - WORK IN PROGRESS</h1>
+<br>
+<br>
 
 ## What is Libraria? (Quick recap)
 
