@@ -2,8 +2,8 @@
 
 **An AI Assisted Book Retrieval and Enhanced Book Recommendation for CCS Academic Library**
 
-<h1 style="font-size: 5.0em;">WIP</h1>
-<div style="padding: 5.0em;">WORK IN PROGRESS</div>
+<h1 style="font-size: 5.0em;">**WIP - WORK IN PROGESS**</h1>
+<div style="padding: 5.0em;"></div>
 
 | Layer | Stack |
 |---|---|
