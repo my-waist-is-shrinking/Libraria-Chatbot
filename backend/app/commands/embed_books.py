@@ -28,6 +28,7 @@ def main():
             # Save each book's numbers
             for book, vector in zip(batch, vectors):
                 book.embedding = vector
+                book.needs_reindex = False
             db.commit()
 
             print(f"  {min(i + BATCH_SIZE, len(books))}/{len(books)} done")

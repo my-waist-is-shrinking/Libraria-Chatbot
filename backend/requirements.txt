@@ -8,3 +8,4 @@ ollama
 bcrypt
 pyjwt
 python-multipart
+google-genai

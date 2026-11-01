@@ -24,22 +24,23 @@ CREATE TABLE courses (
 
 -- ===== BOOKS (the catalog the AI searches) =====
 CREATE TABLE books (
-    id           SERIAL PRIMARY KEY,
-    title        TEXT        NOT NULL,
-    author       TEXT,                          -- some books have no author listed
-    edition      VARCHAR(50),
-    publisher    VARCHAR(255),
-    call_number  VARCHAR(50),                   -- shelf location (empty for e-books)
-    format       VARCHAR(10) NOT NULL DEFAULT 'Print'
-                 CHECK (format IN ('Print', 'E-Book')),
-    description  TEXT,                          -- empty for now, helps AI search later
-    is_available BOOLEAN     NOT NULL DEFAULT TRUE,
-    cover_image  TEXT,                          -- URL or path to book cover image
-    copies       INT         NOT NULL DEFAULT 1
-                 CHECK (copies >= 0),           -- how many copies the library owns
-    embedding    vector(768),                   -- AI "meaning" numbers, filled in later
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id            SERIAL PRIMARY KEY,
+    title         TEXT        NOT NULL,
+    author        TEXT,                          -- some books have no author listed
+    edition       VARCHAR(50),
+    publisher     VARCHAR(255),
+    call_number   VARCHAR(50),                   -- shelf location (empty for e-books)
+    format        VARCHAR(10) NOT NULL DEFAULT 'Print'
+                  CHECK (format IN ('Print', 'E-Book')),
+    description   TEXT,                          -- empty for now, helps AI search later
+    is_available  BOOLEAN     NOT NULL DEFAULT TRUE,
+    cover_image   TEXT,                          -- URL or path to book cover image
+    copies        INT         NOT NULL DEFAULT 1
+                  CHECK (copies >= 0),           -- how many copies the library owns
+    embedding     vector(768),                   -- AI "meaning" numbers, filled in later
+    needs_reindex BOOLEAN     NOT NULL DEFAULT FALSE,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Makes "find similar books" fast

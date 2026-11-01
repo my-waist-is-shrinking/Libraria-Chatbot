@@ -173,8 +173,10 @@ const CourseRow = ({ course, index = 0, onClick }) => {
 };
 
 const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
-  const [allBooks, setAllBooks] = useState(fallbackBooks);       // all books loaded from backend
-  const [isLoading, setIsLoading] = useState(true);   // true while loading
+  // Default to bundled catalog immediately so the UI is interactive with zero initial delay
+  const [allBooks, setAllBooks] = useState(fallbackBooks);
+  // Start false if we already have offline books to prevent blocking the screen on cold starts
+  const [isLoading, setIsLoading] = useState(!fallbackBooks || fallbackBooks.length === 0);
   const [error, setError] = useState('');
 
   // Discover search bar + selected book + pagination state
@@ -186,23 +188,35 @@ const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
   const [catPage, setCatPage] = useState(1);                // current page for categories (6 per page)
   const collectionRef = useRef(null);
 
-  // Load books once when opened
+  // Fetch live catalog updates on mount; silently falls back to bundled books if offline
   useEffect(() => {
     const loadBooks = async () => {
-      setIsLoading(true);
+      // Abort controller with 3s timeout prevents browser hanging when local backend or ngrok is offline
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       try {
-        const response = await fetch(`${API_URL}/api/books`, { headers: { "ngrok-skip-browser-warning": "true" } });
-        if (!response.ok) throw new Error();
-        setAllBooks(await response.json());
+        const response = await fetch(`${API_URL}/api/books`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' },
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        
+        // Update state with fresh database records
+        setAllBooks(data);
         setError('');
-      } catch {
-         // Fallback to our bundled books if backend is sleeping
+      } catch (err) {
+        // Backend unreachable or timed out: preserve offline fallback books with no user-facing error
         setAllBooks(fallbackBooks);
         setError('');
       } finally {
         setIsLoading(false);
       }
     };
+
     loadBooks();
   }, []);
 
