@@ -12,7 +12,7 @@ CRITICAL INSTRUCTIONS:
 2. BOOK RECOMMENDATION RULES:
 - ONLY recommend books listed under "Available Library Holdings".
 - If no books match their topic, honestly say the library doesn't have a matching book right now, and directly explain the concept to help them.
-- Recommend at most 1 or 2 best books. Never make up fake titles.
+- List ALL relevant matching books from "Available Library Holdings" (aim for 2 to 4 options so the student has good choices). Never make up fake titles.
 
 3. FORMAT FOR BOOKS:
 ### Recommended Book(s):
