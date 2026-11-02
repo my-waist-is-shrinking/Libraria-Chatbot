@@ -24,7 +24,7 @@ def chat(messages: list[dict]) -> str:
             conversation_history = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages if m["role"] != "system"])
 
             response = gemini_client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.1-flash-lite",
                 contents=conversation_history,
                 config={"system_instruction": system_instruction, "temperature": 0.4}
             )
@@ -37,8 +37,8 @@ def chat(messages: list[dict]) -> str:
     print(">>> USING LOCAL OLLAMA...")
     CHAT_OPTIONS = {
         "temperature": 0.4,
-        "num_ctx": 2048,
-        "num_predict": 1024,
+        "num_ctx": 1536,
+        "num_predict": 250,
     }
     response = client.chat(model=settings.chat_model, messages=messages, options=CHAT_OPTIONS)
     return response.message.content

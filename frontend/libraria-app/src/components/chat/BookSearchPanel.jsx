@@ -560,7 +560,7 @@ const BookSearchPanel = ({ view = 'discover', onNavigate, onAsk }) => {
 
           <div className="relative z-10 mx-auto w-full max-w-2xl space-y-5">
             <h1 className="text-2xl font-bold tracking-tight text-white uppercase sm:text-4xl leading-tight">
-              EXPLORE<br />THE VAST WORLD OF<br />BOOKS
+              EXPLORE<br />THE WORLD OF<br />COMPUTER STUDIES
             </h1>
 
             {/* Pill search bar with round magnifying glass icon button */}

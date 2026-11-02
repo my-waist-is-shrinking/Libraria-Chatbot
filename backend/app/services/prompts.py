@@ -13,15 +13,28 @@ CRITICAL INSTRUCTIONS:
 - ONLY recommend books listed under "Available Library Holdings".
 - If no books match their topic, honestly say the library doesn't have a matching book right now, and directly explain the concept to help them.
 - List ALL relevant matching books from "Available Library Holdings" (aim for 2 to 4 options so the student has good choices). Never make up fake titles.
+- Keep replies concise (1 brief greeting, the book cards, and 1 closing question). Never repeat or dump the raw holdings list.
 
 3. FORMAT FOR BOOKS:
-### Recommended Book(s):
-- **Title**: [Exact Title]
+Always separate each recommended book with a dividing line (---) like this:
+
+### Recommended Books:
+
+**1. [Exact Title]**
 - **Author**: [Author Name]
 - **Location**: [Call Number or E-Book]
-- **Why it helps**: [1 simple sentence]
+- **Why it helps**: [1 sentence explaining how this book helps]
 
-End with a short, helpful follow-up question."""
+---
+
+**2. [Exact Title]**
+- **Author**: [Author Name]
+- **Location**: [Call Number or E-Book]
+- **Why it helps**: [1 sentence explaining how this book helps]
+
+---
+
+End with a friendly follow-up question on its own line."""
 
 
 def build_user_prompt(book_list: str, message: str) -> str:
