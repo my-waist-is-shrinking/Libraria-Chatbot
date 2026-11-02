@@ -20,7 +20,7 @@ def verify_command(db: Session, message: str, history: list[HistoryMessage]):
         if not last_ai:
             return (
                 "ℹ️ **Usage:** Type `/verify <book title>` (for example, `/verify Data Structures`) "
-                "to check directly against the CCS Library database.",
+                "to check directly against the CCS library collection.",
                 [],
             )
         all_books = book_repo.list_all(db)
@@ -34,7 +34,7 @@ def verify_command(db: Session, message: str, history: list[HistoryMessage]):
             )
         lines = "\n".join(f"{i}. **{b.title}**" for i, b in enumerate(matched[:5], start=1))
         return (
-            f"✅ **Catalog Verification — {len(matched)} book(s) from the last reply exist in the CCS Library database:**\n\n{lines}",
+            f"✅ **Catalog Verification — {len(matched)} book(s) from the last reply exist in the CCS library collection:**\n\n{lines}",
             matched[:5],
         )
 

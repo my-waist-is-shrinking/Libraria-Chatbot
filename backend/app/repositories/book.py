@@ -21,7 +21,6 @@ def search_by_title(db: Session, title: str, limit: int = 30) -> list[Book]:
     pattern = f"%{title}%"                     # % = anything before/after, so part of a title still works
     stmt = (
         select(Book)                           # get books
-        .options(selectinload(Book.courses))   # also load each book's courses
         .where(Book.title.ilike(pattern))      # ilike = ignore capital letters; ONLY the title is checked
         .order_by(Book.title)                  # sort A to Z
         .limit(limit)                          # at most 30 results

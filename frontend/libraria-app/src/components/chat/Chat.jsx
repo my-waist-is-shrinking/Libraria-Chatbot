@@ -518,7 +518,7 @@ const Chat = () => {
                         >
                           /verify
                         </button>
-                        ) to fact-check books directly against the database
+                        ) to check if a book is in the library collection
                       </p>
                     </div>
                   </form>

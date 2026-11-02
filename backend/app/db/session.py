@@ -4,7 +4,10 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from app.core.config import settings
 
 # The connection to the database
-engine = create_engine(settings.database_url)
+engine = create_engine(
+    settings.database_url,
+    connect_args={"prepare_threshold": None},
+)
 
 # Makes a new "session" (a conversation with the database) per request
 SessionLocal = sessionmaker(bind=engine)

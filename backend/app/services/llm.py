@@ -17,23 +17,24 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 def chat(messages: list[dict]) -> str:
     """Use Gemini Cloud API if configured for blazing speed; fallback to Ollama."""
-    # If Gemini key is provided, use Gemini 1.5/2.0 Flash
     if gemini_client:
         try:
-            # Extract system prompt and user conversation
+            print(">>> ATTEMPTING GEMINI API...")
             system_instruction = next((m["content"] for m in messages if m["role"] == "system"), "")
             conversation_history = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages if m["role"] != "system"])
 
             response = gemini_client.models.generate_content(
-                model="gemini-1.5-flash",
+                model="gemini-3.5-flash",
                 contents=conversation_history,
                 config={"system_instruction": system_instruction, "temperature": 0.4}
             )
+            print(">>> SUCCESS: Answered by Gemini!")
             return response.text
         except Exception as e:
-            print(f"Gemini API error, falling back to Ollama: {e}")
+            print(f">>> FAILED GEMINI: {e}")
+            print(">>> Falling back to local Ollama now...")
 
-    # Fallback to local Ollama if offline or no key
+    print(">>> USING LOCAL OLLAMA...")
     CHAT_OPTIONS = {
         "temperature": 0.4,
         "num_ctx": 2048,
