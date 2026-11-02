@@ -507,20 +507,7 @@ const Chat = () => {
                         >
                           /verify &lt;title&gt;
                         </button>{' '}
-                      <p className="text-xs text-[#8E8EA0] text-center">
-                        Tip: Use{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setInput('/verify ');
-                            inputRef.current?.focus();
-                          }}
-                          className="font-semibold text-[#4E426D] hover:underline"
-                        >
-                          /verify &lt;title&gt;
-                        </button>{' '}
                         to check if a book is in the library collection
-                      </p>
                       </p>
                     </div>
                   </form>
